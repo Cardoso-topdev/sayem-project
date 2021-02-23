@@ -4,11 +4,6 @@
 
 This clone tries to replicate some of the great note-taking features Notion has. If you don't know [Notion.so](https://notion.so) yet, I highly recommend to check it out!
 
-📌 Live Demo: [notion-clone.kmuenster.com](https://notion-clone.kmuenster.com/)
-
-📌 Medium Article: [How To Build A Text Editor Like Notion](https://medium.com/swlh/how-to-build-a-text-editor-like-notion-c510aedfdfcc)
-
----
 
 <img alt="notion clone screenshot" src="./screenshot.gif" width="480">
 
@@ -84,11 +79,3 @@ Express.js · MongoDB with Mongoose · Nodemailer · JWT (Cookie-based)
     npm run dev
     ```
 
-## About
-
-Konstantin Münster – [konstantin.digital](https://konstantin.digital) – [mail@konstantin.digital](mailto:mail@konstantin.digital)
-
-Distributed under the [MIT](http://showalicense.com/?fullname=Konstantin+M%C3%BCnster&year=2019#license-mit) license.
-See `LICENSE` for more information.
-
-[https://github.com/konstantinmuenster](https://github.com/konstantinmuenster)
