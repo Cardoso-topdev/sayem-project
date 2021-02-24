@@ -30,6 +30,13 @@ const form = {
       required: true,
       value: "",
     },
+    {
+      id: "bio",
+      type: "text",
+      label: "Bio",
+      required: true,
+      value: "",
+    },
   ],
   submitButton: {
     type: "submit",
@@ -55,9 +62,6 @@ const SignupPage = () => {
     e.preventDefault();
     setNotice(RESET_NOTICE);
     try {
-      console.log("signup handle submit")
-      console.log(formData)
-      console.log(`${process.env.NEXT_PUBLIC_API}`)
       const response = await fetch(
         `${process.env.NEXT_PUBLIC_API}/users/signup`,
         {
@@ -68,24 +72,21 @@ const SignupPage = () => {
             name: formData.name,
             email: formData.email,
             password: formData.password,
+            bio: formData.bio,
           }),
         }
       );
-      console.log(response)
       const data = await response.json();
-      console.log(data)
       if (data.errCode) {
         setNotice({ type: "ERROR", message: data.message });
       } else {
-        dispatch({ type: "LOGIN" });
+        dispatch({ type: "LOGIN", userId: data.userId });
         setNotice({
           type: "SUCCESS",
           message:
             "Success! Check your inbox to confirm your email. You will now be redirected.",
         });
-        setTimeout(() => {
-          router.push("/pages");
-        }, 400);
+        router.push("/" + data.userId);
       }
     } catch (err) {
       console.log(err);

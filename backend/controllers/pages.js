@@ -6,7 +6,6 @@ const Page = require("../models/page");
 const User = require("../models/user");
 
 const getPages = async (req, res, next) => {
-  console.log("getPages called")
   const userId = req.userId;
 
   try {
@@ -45,15 +44,8 @@ function isValidHttpUrl(string) {
 
 const getMetaData = async (req, res, next) => {
   try {
-    console.log("getMetaData")
-    // const userId = req.userId;
     const url = req.body.url;
 
-    // console.log(userId)
-
-    // const user = await User.findById(userId);
-    // console.log("inboxBlocks")
-    // console.log(user.inboxBlocks)
     let title;
     if (isValidHttpUrl(url)) {
       request(url, function (error, response, body)
@@ -65,8 +57,6 @@ const getMetaData = async (req, res, next) => {
         var $ = cheerio.load(body);
         // in this $ variable we can find the hostname and uri stuff
         const { protocol, hostname, pathname } = new URL(url);
-        console.log('protocol, hostname, pathname')
-        console.log(protocol, hostname, pathname)
         title = $("title").text();
         res.status(200).json({
           message: "Got title",
@@ -92,15 +82,11 @@ const getMetaData = async (req, res, next) => {
 
 // get a page that already exists
 const getPage = async (req, res, next) => {
-  console.log("getPage called!")
   let userId = req.userId;
   const pageId = req.params.pageId;
   let creatorId;
-  // console.log(userId)
-  console.log(pageId)
   try {
     const page = await Page.findById(pageId);
-    console.log(page)
     if (!page) {
       const err = new Error("Could not find page by id.");
       err.statusCode = 404;
@@ -113,46 +99,19 @@ const getPage = async (req, res, next) => {
       creatorId = null;
     }
 
-    // if (page.ispublic || creatorId === userId) {
       res.status(200).json({
         message: "Fetched page successfully.",
         page: page,
       });
-    // } else {
-    //   const err = new Error("This page is private! Ask the creator.");
-    //   err.statusCode = 401;
-    //   throw err;
-    // } 
   } catch (err) {
     next(err);
   }
-
-    // Public pages have no creator, they can be accessed by anybody
-    // For private pages, creator and logged-in user have to be the same
-  //   const creatorId = page.creator ? page.creator.toString() : null;
-  //   if ((creatorId && creatorId === userId) || !creatorId) {
-  //     res.status(200).json({
-  //       message: "Fetched page successfully.",
-  //       page: page,
-  //     });
-  //   } else {
-  //     const err = new Error("User is not authenticated.");
-  //     err.statusCode = 401;
-  //     throw err;
-  //   }
-  // } catch (err) {
-  //   next(err);
-  // }
 };
 
 // create page for the first time
 const postPage2 = async (req, res, next) => {
-  // console.log("postPage2 called!")
   const userId = req.body.userId;
   const blocks = req.body.blocks;
-  // console.log("req.body.userId")
-  // console.log(req.body.userId)
-  // console.log(req.body.blocks)
   const page = new Page({
     blocks: blocks,
     creator: userId || null,
@@ -169,8 +128,6 @@ const postPage2 = async (req, res, next) => {
         err.statusCode = 404;
         throw err;
       }
-      // console.log("yo this the page added to users page array")
-      // console.log(savedPage._id)
       user.pages.push(savedPage._id);
       await user.save();
     }
@@ -193,6 +150,11 @@ const postPage = async (req, res, next) => {
   console.log("req.body.userId")
   console.log(req.body.userId)
   console.log(req.body.blocks)
+  if (!req.body.userId) {
+    const err = new Error("User id is empty.");
+    err.statusCode = 404;
+    throw err;
+  }
   const page = new Page({
     blocks: blocks,
     creator: userId || null,

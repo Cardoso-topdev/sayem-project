@@ -71,10 +71,6 @@ const NotesPage = ({ id, creatorid, pageIdList, filteredPages, fetchedBlocks, er
   const [blocks, setBlocks] = useState(fetchedBlocks);
   const [currentBlockId, setCurrentBlockId] = useState(null);
   const classes = useStyles();
-
-  console.log("NotesPage props")
-  console.log(id)
-
   const prevBlocks = usePrevious(blocks);
 
   // Update the database whenever blocks change
@@ -225,40 +221,8 @@ const NotesPage = ({ id, creatorid, pageIdList, filteredPages, fetchedBlocks, er
     <>
       {/* <h1 className="pageHeading">Welcome, {creatorid}! </h1> */}
       {/* <h1 className="pageHeading">Your Notes</h1> */}
-      <BioHeader style={{ marginBottom: "1rem" }}>
-        <h4>Sayem Hoque</h4>
-        <p>@sayemhoque</p>
-        <p>Hi there, I'm Sayem!</p>
+      <BioHeader style={{ marginBottom: "1rem" }} username="Sayem Hoque" bio="Hi there, I'm Sayem!" />
         
-        
-        {/* <DragDropContext onDragEnd={onDragEndHandler}>
-          <Droppable droppableId={id}>
-            {(provided) => (
-              <div ref={provided.innerRef} {...provided.droppableProps}>
-                <EditableBlock
-                  key={block1._id}
-                  position={0}
-                  id={block1._id}
-                  tag={block1.tag}
-                  html={block1.html}
-                  html2={block1.html2}
-                  imageUrl={block1.imageUrl}
-                  displayText={block1.displayText}
-                  protocol={block1.protocol}
-                  hostname={block1.hostname}
-                  pathname={block1.pathname}
-                  pageId={id}
-                  disabled={true}
-                  addBlock={addBlockHandler}
-                  deleteBlock={deleteBlockHandler}
-                  updateBlock={updateBlockHandler}
-                />
-                {provided.placeholder}
-              </div>
-            )}
-          </Droppable>
-        </DragDropContext> */}
-      </BioHeader>
       <Breadcrumbs separator="/">
         <Link color="inherit" style={{fontSize:"1.1em", cursor:"pointer"}} onClick={handleInbox}>
           <InboxIcon className={classes.icon} />

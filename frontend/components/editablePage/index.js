@@ -7,27 +7,6 @@ import Notice from "../notice";
 import { usePrevious } from "../../hooks";
 import { objectId, setCaretToEnd } from "../../utils";
 
-// A page is represented by an array containing several blocks
-// [
-//   {
-//     _id: "5f54d75b114c6d176d7e9765",
-//     html: "Heading",
-//     tag: "h1",
-//     imageUrl: "",
-//   },
-//   {
-//     _id: "5f54d75b114c6d176d7e9766",
-//     html: "I am a <strong>paragraph</strong>",
-//     tag: "p",
-//     imageUrl: "",
-//   },
-//     _id: "5f54d75b114c6d176d7e9767",
-//     html: "/im",
-//     tag: "img",
-//     imageUrl: "images/test.png",
-//   }
-// ]
-
 const EditablePage = ({ id, creatorid, fetchedBlocks, err }) => {
   if (err) {
     return (
@@ -48,9 +27,6 @@ const EditablePage = ({ id, creatorid, fetchedBlocks, err }) => {
   useEffect(() => {
     const updatePageOnServer = async (blocks) => {
       try {
-        console.log(blocks)
-        console.log(id)
-        console.log("update page")
         await fetch(`${process.env.NEXT_PUBLIC_API}/pages/${id}`, {
           method: "PUT",
           credentials: "include",

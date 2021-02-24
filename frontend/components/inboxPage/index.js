@@ -35,28 +35,14 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-// A page is represented by an array containing several blocks
-// [
-//   {
-//     _id: "5f54d75b114c6d176d7e9765",
-//     html: "Heading",
-//     tag: "h1",
-//     imageUrl: "",
-//   },
-//   {
-//     _id: "5f54d75b114c6d176d7e9766",
-//     html: "I am a <strong>paragraph</strong>",
-//     tag: "p",
-//     imageUrl: "",
-//   },
-//     _id: "5f54d75b114c6d176d7e9767",
-//     html: "/im",
-//     tag: "img",
-//     imageUrl: "images/test.png",
-//   }
-// ]
-
-const InboxPage = ({ id, creatorid, pageIdList, filteredPages, fetchedBlocks, err }) => {
+const InboxPage = ({  id, 
+                      creatorid, 
+                      pageIdList, 
+                      filteredPages, 
+                      fetchedBlocks, 
+                      userid, 
+                      bio, 
+                      err }) => {
   if (err) {
     return (
       <Notice status="ERROR">
@@ -77,8 +63,6 @@ const InboxPage = ({ id, creatorid, pageIdList, filteredPages, fetchedBlocks, er
   const contentEditable = React.createRef();
   const prevBlocks = usePrevious(blocks);
   let block1 = blocks[0];
-  console.log("fetchedBlocks")
-  console.log(fetchedBlocks)
 
   // Update the database whenever blocks change
   useEffect(() => {
@@ -152,7 +136,6 @@ const InboxPage = ({ id, creatorid, pageIdList, filteredPages, fetchedBlocks, er
   };
 
   const updateBlockHandler = (currentBlock) => {
-    console.log("updateBlockHandler called")
     const index = blocks.map((b) => b._id).indexOf(currentBlock.id);
     const oldBlock = blocks[index];
     const updatedBlocks = [...blocks];
@@ -178,8 +161,6 @@ const InboxPage = ({ id, creatorid, pageIdList, filteredPages, fetchedBlocks, er
   const addBlockHandler = (currentBlock) => {
     setCurrentBlockId(currentBlock.id);
     const index = blocks.map((b) => b._id).indexOf(currentBlock.id);
-    console.log(index)
-    console.log(blocks)
     
     const updatedBlocks = [...blocks];
     const newBlock =  {  
@@ -207,29 +188,11 @@ const InboxPage = ({ id, creatorid, pageIdList, filteredPages, fetchedBlocks, er
   };
 
   function addBlockToEndHandler2() {
-    console.log("addBlockHandler2")
     let index = blocks.length - 1;
 
     let currentBlock = blocks[blocks.length - 1]
     setCurrentBlockId(currentBlock.id);
-    console.log(currentBlock)
-    console.log(index)
-    console.log(blocks)
     const updatedBlocks = [...blocks];
-    console.log("updatedBlocks")
-    console.log(updatedBlocks)
-    // const newBlock = { _id: objectId(), tag: "p", html: "", imageUrl: "" };
-    // console.log(blocks)
-    // console.log(updatedBlocks)
-    // console.log(index)
-    // updatedBlocks.splice(index + 1, 0, newBlock);
-    // updatedBlocks[index] = {
-    //   ...updatedBlocks[index],
-    //   tag: currentBlock.tag,
-    //   html: currentBlock.html,
-    //   imageUrl: currentBlock.imageUrl,
-    // };
-    // setBlocks(updatedBlocks);
   }
 
   const deleteBlockHandler = (currentBlock) => {
@@ -277,92 +240,24 @@ const InboxPage = ({ id, creatorid, pageIdList, filteredPages, fetchedBlocks, er
 
   return (
     <>
-      {/* <h1 className="pageHeading">💐💐💐, {creatorid}! </h1> */}
-      {/* <h2 >💐💐💐 </h2> */}
-      {/* <h3 className="pageHeading"> @sayemhoque </h3>
-      <h3 className="pageHeading"> your bio here </h3>
-      <br></br>
-      <br></br>
-      <br></br>
-      <br></br>
-      <br></br> */}
-      
-      <BioHeader style={{ marginBottom: "1rem" }}>
-        <h4>Sayem Hoque</h4>
-        <p>@sayemhoque</p>
-        <p>Hi there, I'm Sayem!</p>
-        
-        
-        {/* <DragDropContext onDragEnd={onDragEndHandler}>
-          <Droppable droppableId={id}>
-            {(provided) => (
-              <div ref={provided.innerRef} {...provided.droppableProps}>
-                <EditableBlock
-                  key={block1._id}
-                  position={0}
-                  id={block1._id}
-                  tag={block1.tag}
-                  html={block1.html}
-                  html2={block1.html2}
-                  imageUrl={block1.imageUrl}
-                  displayText={block1.displayText}
-                  protocol={block1.protocol}
-                  hostname={block1.hostname}
-                  pathname={block1.pathname}
-                  pageId={id}
-                  disabled={true}
-                  addBlock={addBlockHandler}
-                  deleteBlock={deleteBlockHandler}
-                  updateBlock={updateBlockHandler}
-                />
-                {provided.placeholder}
-              </div>
-            )}
-          </Droppable>
-        </DragDropContext> */}
-      </BioHeader>
+      <BioHeader style={{ marginBottom: "1rem" }} pageid = {id} username={creatorid} userid={userid} bio={bio} />
 
       <Breadcrumbs separator="/">
         <Link color="inherit" style={{fontSize:"2em", cursor:"pointer"}} onClick={handleInbox}>
-          <InboxIcon className={classes.icon} />
+          <InboxIcon />
           Inbox
         </Link>
         <Link color="inherit" style={{fontSize:"1.1em", cursor:"pointer"}} onClick={handleNotes}>
-          <NotesIcon className={classes.icon} />
+          <NotesIcon />
           Notes
         </Link>
         <Link color="inherit" style={{fontSize:"1.1em", cursor:"pointer"}} onClick={handleRL}>
-          <ViewListIcon className={classes.icon} />
+          <ViewListIcon />
           Lists
         </Link>
-        
-
       </Breadcrumbs>
       <br></br>
 
-
-
-
-      {/* {blocks.length !== 0 && (
-        <Notice style={{ marginBottom: "1rem" }}>
-          <p>You have {blocks.length} unread items in your inbox.</p>
-        </Notice>
-      )} */}
-
-      {/* {blocks.length === 0 && (
-        <Notice style={{ marginBottom: "2rem" }}>
-          <p>You have 0 unread items in your inbox. Add items here or via the browser extension!</p>
-        </Notice>
-      )} */}
-
-      {/* {cards.length === 0 && (
-          <Notice style={{ marginBottom: "2rem" }}>
-            <h3>Let's go!</h3>
-            <p>Seems like you haven't created any pages so far.</p>
-            <p>How about starting now?</p>
-          </Notice>
-        )} */}
-        
       <DragDropContext onDragEnd={onDragEndHandler}>
         <Droppable droppableId={id}>
           {(provided) => (
@@ -370,9 +265,7 @@ const InboxPage = ({ id, creatorid, pageIdList, filteredPages, fetchedBlocks, er
               {blocks.map((block) => {
                 const position =
                   blocks.map((b) => b._id).indexOf(block._id) + 1;
-                console.log(block)
                 return (
-                  <>
                   <InboxEditableBlock
                     key={block._id}
                     position={position}
@@ -390,8 +283,6 @@ const InboxPage = ({ id, creatorid, pageIdList, filteredPages, fetchedBlocks, er
                     deleteBlock={deleteBlockHandler}
                     updateBlock={updateBlockHandler}
                   />
-
-                  </>
                 );
               })}
               {provided.placeholder}

@@ -26,8 +26,6 @@ export const getServerSideProps = async (context) => {
     );
     const data = await response.json();
     const pageIdList = data.pages;
-    console.log("yo the data")
-    console.log(data)
     const permanentPagesList = data.permanentPages;
 
     const pages = await Promise.all(
@@ -66,17 +64,7 @@ export const getServerSideProps = async (context) => {
       })
     );
 
-    console.log("pages")
-    console.log(pages)
-    console.log("permanentPages")
-    console.log(permanentPages)
-
     const filteredPages = pages.filter((page) => !page.errCode);
-    console.log("reading list page")
-    console.log(filteredPages)
-    console.log(pageIdList)
-    console.log(pageId)
-    console.log(data)
     return {
       props: { permanentPages: permanentPages, filteredPages: filteredPages, pageIdList: pageIdList, uid: pageId, creatorid: data.name, err: false },
     };

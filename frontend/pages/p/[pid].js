@@ -10,8 +10,6 @@ export const getServerSideProps = async (context) => {
   resetServerContext(); // needed for drag and drop functionality
   const pageId = context.query.pid;
   const req = context.req;
-  console.log(`${process.env.NEXT_PUBLIC_API}/pages/${pageId}`);
-
   try {
     const response = await fetch(
       `${process.env.NEXT_PUBLIC_API}/pages/${pageId}`,
@@ -26,8 +24,6 @@ export const getServerSideProps = async (context) => {
       }
     );
     const data = await response.json();
-    console.log("pid")
-    console.log(data)
     let creatorid = "";
     if (data.page.creator)
       creatorid = data.page.creator.toString();

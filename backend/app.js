@@ -10,6 +10,7 @@ dotenv.config();
 
 const pagesRoutes = require("./routes/pages");
 const usersRoutes = require("./routes/users");
+// var cors = require("cors");
 
 // Configuration where images should be stored and named
 const fileStorage = multer.diskStorage({
@@ -55,8 +56,11 @@ const fileFilter = (req, file, cb) => {
 };
 
 const app = express();
+// app.use(cors());
 
 app.use((req, res, next) => {
+  // res.header("Access-Control-Allow-Origin", "https://readwithmev1.herokuapp.com");
+  // res.setHeader("Access-Control-Allow-Origin", "https://readwithmev1.herokuapp.com");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
   res.setHeader("Access-Control-Allow-Origin", process.env.FRONTEND_URL);
   res.setHeader("Access-Control-Allow-Credentials", true);
@@ -85,6 +89,7 @@ app.use("/users", usersRoutes);
 // Error Handling
 app.use((err, req, res, next) => {
   console.log(err);
+  console.log(req);
   const status = err.statusCode || 500;
   const message = err.message;
   const data = err.data;
@@ -92,8 +97,7 @@ app.use((err, req, res, next) => {
 });
 
 // ---- CHECKING SERVER STATUS ---
-const PORT = process.env.PORT || 8084;
-console.log(PORT);
+const PORT = process.env.PORT || 8080;
 
 app.listen(PORT, () => {
   console.log(`**** SERVER STARTED AT PORT ${PORT} ****`);

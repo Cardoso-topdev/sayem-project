@@ -46,11 +46,6 @@ export const getServerSideProps = async (context) => {
       })
     );
     const filteredPages = pages.filter((page) => !page.errCode);
-    console.log("notes page")
-    console.log(filteredPages)
-    console.log(pageIdList)
-    console.log(pageId)
-    console.log(data)
     return {
       props: { filteredPages: filteredPages, pageIdList: pageIdList, uid: pageId, creatorid: data.name, err: false },
     };

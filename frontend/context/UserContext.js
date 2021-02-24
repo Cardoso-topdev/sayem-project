@@ -12,6 +12,7 @@ const reducer = (state, action) => {
     case "LOGIN": {
       return {
         isAuth: true,
+        userId: action.userId
       };
     }
     case "LOGOUT": {
@@ -25,12 +26,12 @@ const reducer = (state, action) => {
   }
 };
 
-const UserProvider = ({ children, isAuthenticated }) => {
+const UserProvider = ({ children, isAuthenticated, userId }) => {
   const [state, dispatch] = useReducer(reducer, { isAuth: isAuthenticated });
 
   useEffect(() => {
     if (isAuthenticated) {
-      dispatch({ type: "LOGIN" });
+      dispatch({ type: "LOGIN", userId: userId });
     } else {
       dispatch({ type: "LOGOUT" });
     }

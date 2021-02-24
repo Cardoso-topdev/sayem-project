@@ -108,7 +108,6 @@ const AccountPage = ({ user }) => {
 };
 
 export const getServerSideProps = async (context) => {
-  console.log("account.js SSP")
   const { token } = cookies(context);
   const res = context.res;
   const req = context.req;

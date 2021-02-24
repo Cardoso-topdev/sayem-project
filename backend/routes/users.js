@@ -53,6 +53,9 @@ router.post("/logout", isAuth, usersController.logout);
 // GET /users/account
 router.get("/account", isAuth, usersController.getUser);
 
+// GET /users/account
+router.get("/getUserList", isAuth, usersController.getUserList);
+
 // PUT /users/account/inbox
 router.put("/account/inbox", isAuth, usersController.updateInbox);
 

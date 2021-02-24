@@ -11,7 +11,6 @@ const LogoutPage = () => {
   '89981139684-5h2uvgps27q8couh86pcffl6vrcve3kb.apps.googleusercontent.com';
 
   const onLogoutSuccess = (res) => {
-    console.log('Logged out Success');
     alert('Logged out Successfully ✌');
   };
 
@@ -41,27 +40,19 @@ const LogoutPage = () => {
         console.log(err);
       }
     };
-    console.log("try to google sign out")
     signOut();
     logoutOnServer();
-    // authentication.signOut();
-    console.log("do we make it here?")
   }, []);
   return null;
 };
 
 export const getServerSideProps = async (context) => {
-  console.log("logout getServerSideProps called!")
   const { token } = cookies(context);
   const res = context.res;
-  console.log(token)
-  console.log(res)
   if (!token) {
-    console.log("NO TOKEN")
     res.writeHead(302, { Location: `/login` });
     res.end();
   }
-  console.log("so we're going to return empty props")
   return { props: {} };
 };
 

@@ -74,20 +74,12 @@ const ReadingListsPage = ({ id, creatorid, pageIdList, filteredPages, permanentP
   const [blocks, setBlocks] = useState(fetchedBlocks);
   const [currentBlockId, setCurrentBlockId] = useState(null);
   const classes = useStyles();
-  console.log("permanentPages")
-  console.log(pcards)
-  
+
   let likes = pcards[0]
-  console.log("likes")
-  console.log(likes)
   let likesupdatedAtDate = new Date(Date.parse(likes.updatedAt));
-  console.log(likesupdatedAtDate)
-  console.log(likes.blocks)
 
   let archive = pcards[1]
   let archiveupdatedAtDate = new Date(Date.parse(likes.updatedAt)); 
-  // console.log("ReadingListPage props")
-  // console.log(id)
   const prevBlocks = usePrevious(blocks);
 
   const deleteCard = async (pageId) => {
@@ -108,8 +100,6 @@ const ReadingListsPage = ({ id, creatorid, pageIdList, filteredPages, permanentP
 
   const createCard = async () => {
     try {
-      console.log("create card called")
-      console.log(cards)
       const blocks = [{ tag: "h1", html: "New Playlist", imageUrl: "" }];
       const response = await fetch(`${process.env.NEXT_PUBLIC_API}/pages/postpage`, {
         method: "POST",
@@ -126,75 +116,14 @@ const ReadingListsPage = ({ id, creatorid, pageIdList, filteredPages, permanentP
         }),
       });
       const data = await response.json()
-      console.log("data")
-      console.log(data)
-      console.log(cards)
       const updatedCards = [...cards];
       updatedCards.push(data.page)
-      console.log("data.page")
-      console.log(data.page)
-      // cards.push(data.page)
-      console.log(updatedCards)
       setCards(updatedCards)
-
-        
-      // const cardIndex = cards.map((page) => page._id).indexOf(pageId);
-      // const updatedCards = [...cards];
-      // updatedCards.splice(cardIndex, 1);
-      // setCards(updatedCards);
     } catch (err) {
       console.log(err);
     }
   };
   
-  // // Update the database whenever blocks change
-  // useEffect(() => {
-  //   const updatePageOnServer = async (blocks) => {
-  //     try {
-  //       await fetch(`${process.env.NEXT_PUBLIC_API}/pages/${id}`, {
-  //         method: "PUT",
-  //         credentials: "include",
-  //         headers: { "Content-Type": "application/json" },
-  //         body: JSON.stringify({
-  //           blocks: blocks,
-  //         }),
-  //       });
-  //     } catch (err) {
-  //       console.log(err);
-  //     }
-  //   };
-  //   if (prevBlocks && prevBlocks !== blocks) {
-  //     updatePageOnServer(blocks);
-  //   }
-  // }, [blocks, prevBlocks]);
-
-  // // Handling the cursor and focus on adding and deleting blocks
-  // useEffect(() => {
-  //   // If a new block was added, move the caret to it
-  //   if (prevBlocks && prevBlocks.length + 1 === blocks.length) {
-  //     const nextBlockPosition =
-  //       blocks.map((b) => b._id).indexOf(currentBlockId) + 1 + 1;
-  //     const nextBlock = document.querySelector(
-  //       `[data-position="${nextBlockPosition}"]`
-  //     );
-  //     if (nextBlock) {
-  //       nextBlock.focus();
-  //     }
-  //   }
-  //   // If a block was deleted, move the caret to the end of the last block
-  //   if (prevBlocks && prevBlocks.length - 1 === blocks.length) {
-  //     const lastBlockPosition = prevBlocks
-  //       .map((b) => b._id)
-  //       .indexOf(currentBlockId);
-  //     const lastBlock = document.querySelector(
-  //       `[data-position="${lastBlockPosition}"]`
-  //     );
-  //     if (lastBlock) {
-  //       setCaretToEnd(lastBlock);
-  //     }
-  //   }
-  // }, [blocks, prevBlocks, currentBlockId]);
-
   const deleteImageOnServer = async (imageUrl) => {
     // The imageUrl contains images/name.jpg, hence we do not need
     // to explicitly add the /images endpoint in the API url
@@ -293,42 +222,7 @@ const ReadingListsPage = ({ id, creatorid, pageIdList, filteredPages, permanentP
 
   return (
     <>
-      {/* <h1 className="pageHeading">Welcome, {creatorid}! </h1> */}
-
-      <BioHeader style={{ marginBottom: "1rem" }}>
-        <h4>Sayem Hoque</h4>
-        <p>@sayemhoque</p>
-        <p>Hi there, I'm Sayem!</p>
-        
-        
-        {/* <DragDropContext onDragEnd={onDragEndHandler}>
-          <Droppable droppableId={id}>
-            {(provided) => (
-              <div ref={provided.innerRef} {...provided.droppableProps}>
-                <EditableBlock
-                  key={block1._id}
-                  position={0}
-                  id={block1._id}
-                  tag={block1.tag}
-                  html={block1.html}
-                  html2={block1.html2}
-                  imageUrl={block1.imageUrl}
-                  displayText={block1.displayText}
-                  protocol={block1.protocol}
-                  hostname={block1.hostname}
-                  pathname={block1.pathname}
-                  pageId={id}
-                  disabled={true}
-                  addBlock={addBlockHandler}
-                  deleteBlock={deleteBlockHandler}
-                  updateBlock={updateBlockHandler}
-                />
-                {provided.placeholder}
-              </div>
-            )}
-          </Droppable>
-        </DragDropContext> */}
-      </BioHeader>
+      <BioHeader style={{ marginBottom: "1rem" }} username="Sayem Hoque" bio="Hi there, I'm Sayem!" />
       <Breadcrumbs separator="/">
         <Link color="inherit" style={{fontSize:"1.1em", cursor:"pointer"}} onClick={handleInbox}>
           <InboxIcon className={classes.icon} />

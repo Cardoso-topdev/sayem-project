@@ -25,9 +25,6 @@ const PagesPage = ({ profileid, pages, inbox, pid, creatorid, blocks }) => {
   const router = useRouter();
 
   const publicprofile= "/user/" + profileid;
-  console.log(publicprofile)
-
-  console.log(blocks)
 
   const deleteCard = async (pageId) => {
     try {
@@ -56,20 +53,6 @@ const PagesPage = ({ profileid, pages, inbox, pid, creatorid, blocks }) => {
     setShowRL(false)
     setShowNotes(true)
     setShowInbox(false)
-    // const response1 = await fetch(
-    //   `${process.env.NEXT_PUBLIC_API}/pages/${pageId}`,
-    //   {
-    //     method: "GET",
-    //     credentials: "include",
-    //     // Forward the authentication cookie to the backend
-    //     headers: {
-    //       "Content-Type": "application/json",
-    //       Cookie: req ? req.headers.cookie : undefined,
-    //     },
-    //   }
-    // );
-    // const data1 = await response1.json();
-    // blocks = data.page.blocks;
   }
 
   function handleInbox() {
@@ -81,10 +64,7 @@ const PagesPage = ({ profileid, pages, inbox, pid, creatorid, blocks }) => {
   return (
     <>
       <h1 className="pageHeading">Profile</h1>
-      {/* <div className="profilepage">
-        <Button href={publicprofile}>View Your Public Profile</Button>
-      </div> */}
-
+     
       <Breadcrumbs separator="/">
         <Link color="inherit" onClick={handleInbox}>
           <InboxIcon className={classes.icon} />
@@ -214,8 +194,6 @@ export const getServerSideProps = async (context) => {
 
     const data = await response.json();
     const data2 = await response2.json();
-    console.log("this the user")
-    console.log(data2)
     const pageIdList = data.pages;
     const pages = await Promise.all(
       pageIdList.map(async (id) => {

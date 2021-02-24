@@ -343,10 +343,6 @@ class EditableBlock extends React.Component {
   }
 
   render() {
-
-    console.log("editableBlock render")
-    console.log(this.props)
-    console.log(this.contentEditable)
     return (
       <>
         {this.state.tagSelectorMenuOpen && (
