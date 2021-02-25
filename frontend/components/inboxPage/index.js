@@ -213,16 +213,17 @@ const InboxPage = ({  pageIdList,
     setBlocks(updatedBlocks);
   };
 
-  function handleInbox() {
-    router.push('/' + userData.userId);
+  const handleInbox = () => {
+    console.log("USERDATA: " + userData._id);
+    router.push('/' + userData._id);
   }
 
-  function handleRL() {
-    router.push('/' + userData.userId + "/rlists");
+  const handleRL = () => {
+    router.push('/' + userData._id + "/rlists");
   }
 
-  function handleNotes () {
-    router.push('/' + userData.userId + "/notes");
+  const handleNotes =  () => {
+    router.push('/' + userData._id + "/notes");
   }
 
   return (
@@ -246,9 +247,8 @@ const InboxPage = ({  pageIdList,
         </Link>
       </Breadcrumbs>
       <br></br>
-
       <DragDropContext onDragEnd={onDragEndHandler}>
-        <Droppable droppableId={userData.userId}>
+        <Droppable droppableId={userData._id}>
           {(provided) => (
             <div ref={provided.innerRef} {...provided.droppableProps}>
               {blocks.map((block) => {

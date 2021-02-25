@@ -32,7 +32,7 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-const NotesPage = ({ id, creatorid, pageIdList, filteredPages, fetchedBlocks, err }) => {
+const NotesPage = ({ filteredPages, fetchedBlocks, err, userData }) => {
   if (err) {
     return (
       <Notice status="ERROR">
@@ -56,7 +56,7 @@ const NotesPage = ({ id, creatorid, pageIdList, filteredPages, fetchedBlocks, er
   useEffect(() => {
     const updatePageOnServer = async (blocks) => {
       try {
-        await fetch(`${process.env.NEXT_PUBLIC_API}/pages/${id}`, {
+        await fetch(`${process.env.NEXT_PUBLIC_API}/pages/${userData._id}`, {
           method: "PUT",
           credentials: "include",
           headers: { "Content-Type": "application/json" },
@@ -100,105 +100,21 @@ const NotesPage = ({ id, creatorid, pageIdList, filteredPages, fetchedBlocks, er
     }
   }, [blocks, prevBlocks, currentBlockId]);
 
-  const deleteImageOnServer = async (imageUrl) => {
-    // The imageUrl contains images/name.jpg, hence we do not need
-    // to explicitly add the /images endpoint in the API url
-    try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API}/pages/${imageUrl}`,
-        {
-          method: "DELETE",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-        }
-      );
-      await response.json();
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
-  const updateBlockHandler = (currentBlock) => {
-    const index = blocks.map((b) => b._id).indexOf(currentBlock.id);
-    const oldBlock = blocks[index];
-    const updatedBlocks = [...blocks];
-    updatedBlocks[index] = {
-      ...updatedBlocks[index],
-      tag: currentBlock.tag,
-      html: currentBlock.html,
-      imageUrl: currentBlock.imageUrl,
-    };
-    setBlocks(updatedBlocks);
-    // If the image has been changed, we have to delete the
-    // old image file on the server
-    if (oldBlock.imageUrl && oldBlock.imageUrl !== currentBlock.imageUrl) {
-      deleteImageOnServer(oldBlock.imageUrl);
-    }
-  };
-
-  const addBlockHandler = (currentBlock) => {
-    setCurrentBlockId(currentBlock.id);
-    const index = blocks.map((b) => b._id).indexOf(currentBlock.id);
-    const updatedBlocks = [...blocks];
-    const newBlock = { _id: objectId(), tag: "p", html: "", imageUrl: "" };
-    updatedBlocks.splice(index + 1, 0, newBlock);
-    updatedBlocks[index] = {
-      ...updatedBlocks[index],
-      tag: currentBlock.tag,
-      html: currentBlock.html,
-      imageUrl: currentBlock.imageUrl,
-    };
-    setBlocks(updatedBlocks);
-  };
-
-  const deleteBlockHandler = (currentBlock) => {
-    if (blocks.length > 1) {
-      setCurrentBlockId(currentBlock.id);
-      const index = blocks.map((b) => b._id).indexOf(currentBlock.id);
-      const deletedBlock = blocks[index];
-      const updatedBlocks = [...blocks];
-      updatedBlocks.splice(index, 1);
-      setBlocks(updatedBlocks);
-      // If the deleted block was an image block, we have to delete
-      // the image file on the server
-      if (deletedBlock.tag === "img" && deletedBlock.imageUrl) {
-        deleteImageOnServer(deletedBlock.imageUrl);
-      }
-    }
-  };
-
-  const onDragEndHandler = (result) => {
-    const { destination, source } = result;
-
-    // If we don't have a destination (due to dropping outside the droppable)
-    // or the destination hasn't changed, we change nothing
-    if (!destination || destination.index === source.index) {
-      return;
-    }
-
-    const updatedBlocks = [...blocks];
-    const removedBlocks = updatedBlocks.splice(source.index - 1, 1);
-    updatedBlocks.splice(destination.index - 1, 0, removedBlocks[0]);
-    setBlocks(updatedBlocks);
-  };
-
-  function handleInbox() {
-    router.push('/' + id);
+  const handleInbox = () => {
+    router.push('/' + userData._id);
   }
 
-  function handleRL() {
-    router.push('/' + id + "/rlists");
+  const handleRL = () => {
+    router.push('/' + userData._id + "/rlists");
   }
 
-  function handleNotes () {
-    router.push('/' + id + "/notes");
+  const handleNotes =  () => {
+    router.push('/' + userData._id + "/notes");
   }
 
   return (
     <>
-      <BioHeader style={{ marginBottom: "1rem" }} username="Sayem Hoque" bio="Hi there, I'm Sayem!" />
+      <BioHeader style={{ marginBottom: "1rem" }} userData = {userData}/>
         
       <Breadcrumbs separator="/">
         <Link color="inherit" style={{fontSize:"1.1em", cursor:"pointer"}} onClick={handleInbox}>

@@ -2,8 +2,14 @@ import { resetServerContext } from "react-beautiful-dnd";
 
 import ReadingListsPage from "../../components/readingListsPage/index";
 
-const RListPage = ({ uid, pageIdList, filteredPages, permanentPages, creatorid, blocks, err }) => {
-  return <ReadingListsPage id={uid} pageIdList={pageIdList} filteredPages={filteredPages} permanentPages={permanentPages} creatorid={creatorid} fetchedBlocks={blocks} err={err} />;
+const RListPage = ({ pageIdList, filteredPages, permanentPages, data, blocks, err }) => {
+  return <ReadingListsPage 
+            pageIdList={pageIdList} 
+            filteredPages={filteredPages} 
+            permanentPages={permanentPages} 
+            fetchedBlocks={blocks} 
+            userData={data} 
+            err={err} />;
 };
 
 export const getServerSideProps = async (context) => {
@@ -13,7 +19,7 @@ export const getServerSideProps = async (context) => {
   try {
 
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API}/users/account`,
+      `${process.env.NEXT_PUBLIC_API}/users/account?userId=` + pageId,
       {
         method: "GET",
         credentials: "include",
@@ -66,7 +72,7 @@ export const getServerSideProps = async (context) => {
 
     const filteredPages = pages.filter((page) => !page.errCode);
     return {
-      props: { permanentPages: permanentPages, filteredPages: filteredPages, pageIdList: pageIdList, uid: pageId, creatorid: data.name, err: false },
+      props: { permanentPages: permanentPages, filteredPages: filteredPages, pageIdList: pageIdList, data: data, err: false },
     };
   } catch (err) {
     console.log(err);

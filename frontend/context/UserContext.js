@@ -18,6 +18,7 @@ const reducer = (state, action) => {
     case "LOGOUT": {
       return {
         isAuth: false,
+        userId: ""
       };
     }
     default: {

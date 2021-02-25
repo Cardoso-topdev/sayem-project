@@ -3,18 +3,16 @@ import { resetServerContext } from "react-beautiful-dnd";
 import NotesPage from "../../components/notesPage/index";
 
 const IndexPage = ({ 
-  uid, 
   pageIdList, 
   filteredPages, 
-  creatorid, 
   blocks, 
+  data,
   err }) => {
   return <NotesPage 
-            id={uid} 
             pageIdList={pageIdList} 
             filteredPages={filteredPages} 
-            creatorid={creatorid} 
             fetchedBlocks={blocks} 
+            userData={data} 
             err={err} />;
 };
 
@@ -25,7 +23,7 @@ export const getServerSideProps = async (context) => {
   try {
 
     const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API}/users/account`,
+      `${process.env.NEXT_PUBLIC_API}/users/account?userId=` + pageId,
       {
         method: "GET",
         credentials: "include",
@@ -58,7 +56,11 @@ export const getServerSideProps = async (context) => {
     );
     const filteredPages = pages.filter((page) => !page.errCode);
     return {
-      props: { filteredPages: filteredPages, pageIdList: pageIdList, uid: pageId, creatorid: data.name, err: false },
+      props: { 
+        filteredPages: filteredPages, 
+        pageIdList: pageIdList, 
+        data: data,
+        err: false },
     };
   } catch (err) {
     console.log(err);

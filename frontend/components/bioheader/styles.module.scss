@@ -51,6 +51,10 @@
 
 .bioContainer{
   margin-top: 30px;
+  input:disabled{
+    background-color: transparent;
+    border: none;
+  }
   button{
     margin: 0 10px;
   }
