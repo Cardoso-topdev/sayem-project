@@ -32,7 +32,7 @@ export const getServerSideProps = async (context) => {
     };
   } catch (err) {
     console.log(err);
-    return { props: { blocks: null, pid: null, creatorid: null, err: true } };
+    return { props: { blocks: null, pid: 100, creatorid: null, err: true } };
   }
 };
 

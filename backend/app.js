@@ -89,7 +89,6 @@ app.use("/users", usersRoutes);
 // Error Handling
 app.use((err, req, res, next) => {
   console.log(err);
-  console.log(req);
   const status = err.statusCode || 500;
   const message = err.message;
   const data = err.data;

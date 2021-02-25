@@ -213,7 +213,7 @@ export const getServerSideProps = async (context) => {
       })
     );
     const filteredPages = pages.filter((page) => !page.errCode);
-    return { props: { profileid: data2.userId, pages: filteredPages, blocks: data1.page.blocks, pid: pageId, creatorid: data1.page.creator.toString(), inbox: data2.inbox } };
+    return { props: { profileid: data2._id, pages: filteredPages, blocks: data1.page.blocks, pid: pageId, creatorid: data1.page.creator.toString(), inbox: data2.inbox } };
   } catch (err) {
     console.log(err);
     return { props: {} };

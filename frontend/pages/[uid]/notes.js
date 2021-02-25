@@ -2,8 +2,20 @@ import { resetServerContext } from "react-beautiful-dnd";
 
 import NotesPage from "../../components/notesPage/index";
 
-const IndexPage = ({ uid, pageIdList, filteredPages, creatorid, blocks, err }) => {
-  return <NotesPage id={uid} pageIdList={pageIdList} filteredPages={filteredPages} creatorid={creatorid} fetchedBlocks={blocks} err={err} />;
+const IndexPage = ({ 
+  uid, 
+  pageIdList, 
+  filteredPages, 
+  creatorid, 
+  blocks, 
+  err }) => {
+  return <NotesPage 
+            id={uid} 
+            pageIdList={pageIdList} 
+            filteredPages={filteredPages} 
+            creatorid={creatorid} 
+            fetchedBlocks={blocks} 
+            err={err} />;
 };
 
 export const getServerSideProps = async (context) => {
@@ -25,7 +37,6 @@ export const getServerSideProps = async (context) => {
       }
     );
     const data = await response.json();
-    // const data = await response.json();
     const pageIdList = data.pages;
 
     const pages = await Promise.all(

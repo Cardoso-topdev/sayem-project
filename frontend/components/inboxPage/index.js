@@ -34,15 +34,10 @@ const useStyles = makeStyles((theme) => ({
     paddingBottom: 10,
   }
 }));
-
-const InboxPage = ({  id, 
-                      creatorid, 
-                      pageIdList, 
-                      filteredPages, 
-                      fetchedBlocks, 
-                      userid, 
-                      bio, 
-                      err }) => {
+const InboxPage = ({  pageIdList, 
+  filteredPages, 
+  userData, 
+  err }) => {
   if (err) {
     return (
       <Notice status="ERROR">
@@ -57,7 +52,7 @@ const InboxPage = ({  id,
   const [showRL, setShowRL] = useState(false)
   const [showNotes, setShowNotes] = useState(false)
   const router = useRouter();
-  const [blocks, setBlocks] = useState(fetchedBlocks);
+  const [blocks, setBlocks] = useState(userData.inboxBlocks);
   const [currentBlockId, setCurrentBlockId] = useState(null);
   const classes = useStyles();
   const contentEditable = React.createRef();
@@ -187,14 +182,6 @@ const InboxPage = ({  id,
     setBlocks(updatedBlocks);
   };
 
-  function addBlockToEndHandler2() {
-    let index = blocks.length - 1;
-
-    let currentBlock = blocks[blocks.length - 1]
-    setCurrentBlockId(currentBlock.id);
-    const updatedBlocks = [...blocks];
-  }
-
   const deleteBlockHandler = (currentBlock) => {
     if (blocks.length > 1) {
       setCurrentBlockId(currentBlock.id);
@@ -227,20 +214,22 @@ const InboxPage = ({  id,
   };
 
   function handleInbox() {
-    router.push('/' + id);
+    router.push('/' + userData.userId);
   }
 
   function handleRL() {
-    router.push('/' + id + "/rlists");
+    router.push('/' + userData.userId + "/rlists");
   }
 
   function handleNotes () {
-    router.push('/' + id + "/notes");
+    router.push('/' + userData.userId + "/notes");
   }
 
   return (
     <>
-      <BioHeader style={{ marginBottom: "1rem" }} pageid = {id} username={creatorid} userid={userid} bio={bio} />
+      <BioHeader 
+        style={{ marginBottom: "1rem" }} 
+        userData = {userData} />
 
       <Breadcrumbs separator="/">
         <Link color="inherit" style={{fontSize:"2em", cursor:"pointer"}} onClick={handleInbox}>
@@ -259,7 +248,7 @@ const InboxPage = ({  id,
       <br></br>
 
       <DragDropContext onDragEnd={onDragEndHandler}>
-        <Droppable droppableId={id}>
+        <Droppable droppableId={userData.userId}>
           {(provided) => (
             <div ref={provided.innerRef} {...provided.droppableProps}>
               {blocks.map((block) => {
@@ -278,7 +267,7 @@ const InboxPage = ({  id,
                     protocol={block.protocol}
                     hostname={block.hostname}
                     pathname={block.pathname}
-                    pageId={id}
+                    pageId={userData.userId}
                     addBlock={addBlockHandler}
                     deleteBlock={deleteBlockHandler}
                     updateBlock={updateBlockHandler}

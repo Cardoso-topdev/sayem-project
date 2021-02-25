@@ -96,6 +96,12 @@ const signup = async (req, res, next) => {
       domain: process.env.DOMAIN,
     });
 
+    res.cookie("userId", user._id.toString(), {
+      httpOnly: true,
+      maxAge: maxAge,
+      domain: process.env.DOMAIN,
+    });
+
     res.status(201).json({
       message: "User successfully created.",
       userId: savedUser._id,
@@ -122,7 +128,7 @@ const googlogin = async (req, res, next) => {
         bio: "Hi there!",
         activationToken: activationToken,
       });
-      const savedUser = await user.save();
+      savedUser = await user.save();
     } else {
       const isEqual = await bcrypt.compare(uid, savedUser.password)
       if (!isEqual) {
@@ -142,52 +148,15 @@ const googlogin = async (req, res, next) => {
       maxAge: maxAge,
       domain: process.env.DOMAIN,
     });
-    res.status(201).json({
-      message: "User successfully logged in.",
-      token: token,
-      userId: savedUser._id.toString(),
-    });
-  } catch (err) {
-    next(err);
-  }
-};
-
-const login2 = async (req, res, next) => {
-  try {
-    const email = req.body.email;
-    const uid = req.body.uid;
-
-    const hashedPassword = await bcrypt.hash(uid, 12);
-    const activationToken = (await promisify(randomBytes)(20)).toString("hex");
-    const savedUser = await User.findOne({ email: email });
-    if (!savedUser) {
-      const user = new User({
-        email: email,
-        password: hashedPassword,
-        name: email,
-        bio: "Hi there!",
-        activationToken: activationToken,
-      });
-      const savedUser = await user.save();
-    }
-
-    const token = jwt.sign(
-      { userId: savedUser._id.toString() },
-      process.env.JWT_KEY
-    );
-
-    // Set cookie in the browser to store authentication state
-    const maxAge = 1000 * 60 * 60 * 4; // 4 hours
-    res.cookie("token", token, {
+    res.cookie("userId", savedUser._id.toString(), {
       httpOnly: true,
       maxAge: maxAge,
       domain: process.env.DOMAIN,
     });
-
     res.status(201).json({
       message: "User successfully logged in.",
       token: token,
-      userId: savedUser._id,
+      userId: savedUser._id.toString(),
     });
   } catch (err) {
     next(err);
@@ -247,11 +216,7 @@ const login = async (req, res, next) => {
 };
 
 const logout = (req, res, next) => {
-  console.log("USERS LOGOUT WAS CALLED")
   const userId = req.userId;
-  console.log("logout got userId")
-  console.log(userId)
-
   try {
     if (!userId) {
       console.log("no userId")
@@ -259,16 +224,12 @@ const logout = (req, res, next) => {
       err.statusCode = 401;
       throw err;
     }
-    console.log("clear cookie please")
-    console.log("process.env.DOMAIN")
-    console.log(process.env.DOMAIN)
     res.clearCookie("token", { domain: process.env.DOMAIN, path:'/logout' });
     res.clearCookie("token", { domain: process.env.DOMAIN, path:'/login' });
     res.clearCookie("token", { domain: process.env.DOMAIN, path:'/pages' });
     res.clearCookie("token", { domain: process.env.DOMAIN, path:'/users' });
     res.clearCookie("token", { domain: process.env.DOMAIN, path:'/' });
-    console.log("after clear cookie")
-    console.log(res)
+    res.clearCookie("userId");
     req.session = null
     res.status(200).json({
       message: "User successfully logged out.",
@@ -291,16 +252,7 @@ const getUser = async (req, res, next) => {
       throw err;
     }
 
-    res.status(200).json({
-      message: "User successfully fetched.",
-      userId: user._id.toString(),
-      email: user.email,
-      name: user.name,
-      bio: user.bio,
-      pages: user.pages,
-      inboxBlocks: user.inboxBlocks,
-      permanentPages: user.permanentPages,
-    });
+    res.status(200).json(user);
   } catch (err) {
     next(err);
   }
@@ -462,7 +414,6 @@ const resetPassword = async (req, res, next) => {
     res.cookie("token", token, {
       httpOnly: true,
       maxAge: maxAge,
-      userId: savedUser._id.toString(),
       domain: process.env.DOMAIN,
     });
 
@@ -503,9 +454,64 @@ const activateAccount = async (req, res, next) => {
   }
 };
 
+const followUser = async (req, res, next) => {
+  const userId = req.body.userId;
+  const followerId = req.body.followerId;
+
+  try {
+    const user = await User.findOne({
+      _id: userId,
+    });
+    const follower = await User.findOne({
+      _id: followerId,
+    });
+    if (!user || !follower) {
+      const err = new Error("UserId is invalid.");
+      err.statusCode = 422;
+      throw err;
+    }
+
+    user.following.push(followerId);
+    follower.followers.push(userId);
+    await user.save();
+    await follower.save();
+
+    res.status(201).json({
+      following : user.following
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
+const saveBioText = async (req, res, next) => {
+  const userId = req.body.userId;
+  const bioText = req.body.bioText;
+
+  try {
+    const user = await User.findOne({
+      _id: userId,
+    });
+    
+    if (!user) {
+      const err = new Error("UserId is invalid.");
+      err.statusCode = 422;
+      throw err;
+    }
+
+    user.bio = bioText;
+    await user.save();
+
+    res.status(201).json({
+      result : true
+    });
+  } catch (err) {
+    next(err);
+  }
+}
+
 exports.signup = signup;
 exports.login = login;
-exports.login2 = login2;
 exports.googlogin = googlogin;
 exports.logout = logout;
 exports.getUser = getUser;
@@ -515,3 +521,6 @@ exports.updateInbox = updateInbox;
 exports.getResetToken = getResetToken;
 exports.resetPassword = resetPassword;
 exports.activateAccount = activateAccount;
+exports.followUser = followUser;
+exports.saveBioText = saveBioText;
+

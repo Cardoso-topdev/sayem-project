@@ -32,27 +32,6 @@ const useStyles = makeStyles((theme) => ({
   }
 }));
 
-// A page is represented by an array containing several blocks
-// [
-//   {
-//     _id: "5f54d75b114c6d176d7e9765",
-//     html: "Heading",
-//     tag: "h1",
-//     imageUrl: "",
-//   },
-//   {
-//     _id: "5f54d75b114c6d176d7e9766",
-//     html: "I am a <strong>paragraph</strong>",
-//     tag: "p",
-//     imageUrl: "",
-//   },
-//     _id: "5f54d75b114c6d176d7e9767",
-//     html: "/im",
-//     tag: "img",
-//     imageUrl: "images/test.png",
-//   }
-// ]
-
 const NotesPage = ({ id, creatorid, pageIdList, filteredPages, fetchedBlocks, err }) => {
   if (err) {
     return (
@@ -219,8 +198,6 @@ const NotesPage = ({ id, creatorid, pageIdList, filteredPages, fetchedBlocks, er
 
   return (
     <>
-      {/* <h1 className="pageHeading">Welcome, {creatorid}! </h1> */}
-      {/* <h1 className="pageHeading">Your Notes</h1> */}
       <BioHeader style={{ marginBottom: "1rem" }} username="Sayem Hoque" bio="Hi there, I'm Sayem!" />
         
       <Breadcrumbs separator="/">

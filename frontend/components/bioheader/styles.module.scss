@@ -55,3 +55,19 @@
     margin: 0 10px;
   }
 }
+
+.followContainer{
+  div{
+    display: flex;
+    margin: 20px 0;
+    p{
+      margin-right: 20px;
+    }
+    span{
+      font-weight: 700;
+      background: lightblue;
+      padding: 1px 6px;
+      border-radius: 30px;
+    }
+  }
+}

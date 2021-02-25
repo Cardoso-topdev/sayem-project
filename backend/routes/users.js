@@ -33,13 +33,6 @@ router.post(
   usersController.login
 );
 
-// POST /users/login
-router.post(
-  "/login2",
-  [emailValidator, passwordValidator],
-  usersController.login2
-);
-
 // POST /users/googlogin
 router.post(
   "/googlogin",
@@ -53,7 +46,7 @@ router.post("/logout", isAuth, usersController.logout);
 // GET /users/account
 router.get("/account", isAuth, usersController.getUser);
 
-// GET /users/account
+// GET /users/getUserList
 router.get("/getUserList", isAuth, usersController.getUserList);
 
 // PUT /users/account/inbox
@@ -74,5 +67,11 @@ router.post(
 
 // POST /users/activate
 router.post("/activate", usersController.activateAccount);
+
+// POST /users/follow
+router.post("/follow", usersController.followUser);
+
+// POST /users/follow
+router.post("/saveBioText", usersController.saveBioText);
 
 module.exports = router;
