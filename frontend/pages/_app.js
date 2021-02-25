@@ -7,7 +7,9 @@ import Layout from "../components/layout";
 import "typeface-nunito-sans";
 import "typeface-roboto";
 import "../shared/global.scss";
+import initAuth from '../utils/initAuth'
 
+initAuth()
 const MyApp = ({ Component, pageProps, isAuthenticated, uId }) => {
   return (
     <UserProvider isAuthenticated={isAuthenticated} userId={uId}>
