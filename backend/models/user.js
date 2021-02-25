@@ -33,6 +33,8 @@ const userSchema = new Schema(
     resetTokenExpiry: {
       type: Number,
     },
+    followers:[],
+    following:[],
     inboxBlocks: [
       {
         tag: {

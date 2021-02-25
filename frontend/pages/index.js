@@ -30,10 +30,10 @@ export const getServerSideProps = async (context) => {
     const query = !creator ? "?public=true" : ""; // needed to show notice
     res.writeHead(302, { Location: `/p/${pageId}${query}` });
     res.end();
-    return { props: {} };
+    return { props: {pid: 100} };
   } catch (err) {
     console.log(err);
-    return { props: { blocks: null, pid: null, err: true } };
+    return { props: { blocks: null, pid: 100, err: true } };
   }
 };
 

@@ -2,28 +2,16 @@ import { resetServerContext } from "react-beautiful-dnd";
 import { useContext } from "react";
 
 import InboxPage from "../../components/inboxPage/index";
-import { UserStateContext } from "../../context/UserContext";
 
 const IndexPage = ({ 
-  uid, 
   pageIdList, 
   filteredPages, 
-  creatorid, 
-  blocks, 
-  bio, 
+  data,
   err }) => {
-
-  const state = useContext(UserStateContext);
-  const userId = state.userId;
-  console.log("USERID: ", userId);
   return <InboxPage 
-            id={uid} 
             pageIdList={pageIdList} 
             filteredPages={filteredPages} 
-            creatorid={creatorid} 
-            fetchedBlocks={blocks} 
-            userid={userId} 
-            bio={bio} 
+            userData={data} 
             err={err} />;
 };
 
@@ -57,12 +45,9 @@ export const getServerSideProps = async (context) => {
     const filteredPages = pages.filter((page) => !page.errCode);
     return {
       props: { 
-        blocks: data.inboxBlocks, 
         filteredPages: filteredPages, 
         pageIdList: pageIdList, 
-        uid: pageId, 
-        creatorid: data.name, 
-        bio: data.bio,
+        data: data,
         err: false 
       },
     };

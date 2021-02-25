@@ -131,7 +131,6 @@ const postPage2 = async (req, res, next) => {
       user.pages.push(savedPage._id);
       await user.save();
     }
-    console.log(savedPage)
 
     res.status(201).json({
       message: "Created page successfully.",
@@ -144,16 +143,12 @@ const postPage2 = async (req, res, next) => {
 
 // create page for the first time
 const postPage = async (req, res, next) => {
-  console.log("postPage called!")
   const userId = req.body.userId;
   const blocks = req.body.blocks;
-  console.log("req.body.userId")
-  console.log(req.body.userId)
-  console.log(req.body.blocks)
   if (!req.body.userId) {
     const err = new Error("User id is empty.");
     err.statusCode = 404;
-    throw err;
+    next(err);
   }
   const page = new Page({
     blocks: blocks,
@@ -224,7 +219,6 @@ const putPage = async (req, res, next) => {
 const deletePage = async (req, res, next) => {
   const userId = req.userId;
   const pageId = req.params.pageId;
-  console.log("deletePage called")
   try {
     const page = await Page.findById(pageId);
 
