@@ -3,6 +3,7 @@ import cookies from "next-cookies";
 
 import Input from "../components/input";
 import Notice from "../components/notice";
+import * as APIService from "../services/apis";
 
 const form = {
   id: "signup",
@@ -53,19 +54,11 @@ const AccountPage = ({ user }) => {
     e.preventDefault();
     setNotice(RESET_NOTICE);
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API}/users/account`,
-        {
-          method: "PUT",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            name: formData.name,
-            email: formData.email,
-            password: formData.password,
-          }),
-        }
-      );
+      const response = await APIService.UserAccount(user.token, "PUT", JSON.stringify({
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+      }))
       const data = await response.json();
       if (data.errCode) {
         setNotice({ type: "ERROR", message: data.message });
@@ -108,7 +101,6 @@ const AccountPage = ({ user }) => {
 };
 
 export const getServerSideProps = async (context) => {
-  console.log("account.js SSP")
   const { token } = cookies(context);
   const res = context.res;
   const req = context.req;
@@ -119,21 +111,10 @@ export const getServerSideProps = async (context) => {
   }
 
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API}/users/account`,
-      {
-        method: "GET",
-        credentials: "include",
-        // Forward the authentication cookie to the backend
-        headers: {
-          "Content-Type": "application/json",
-          Cookie: req ? req.headers.cookie : undefined,
-        },
-      }
-    );
+    const response = await APIService.UserAccount(token, "GET")
     const data = await response.json();
     return {
-      props: { user: { name: data.name, email: data.email } },
+      props: { user: { name: data.name, email: data.email, token } },
     };
   } catch (err) {
     console.log(err);

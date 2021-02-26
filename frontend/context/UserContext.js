@@ -12,11 +12,17 @@ const reducer = (state, action) => {
     case "LOGIN": {
       return {
         isAuth: true,
+        token: action.token,
+        userId: action.userId,
+        userName: action.userName
       };
     }
     case "LOGOUT": {
       return {
         isAuth: false,
+        token: "",
+        userId: "",
+        userName: ""
       };
     }
     default: {
@@ -25,12 +31,16 @@ const reducer = (state, action) => {
   }
 };
 
-const UserProvider = ({ children, isAuthenticated }) => {
-  const [state, dispatch] = useReducer(reducer, { isAuth: isAuthenticated });
+const UserProvider = ({ children, isAuthenticated, token, userId, userName }) => {
+  const [state, dispatch] = useReducer(reducer, { isAuth: isAuthenticated, token:token, userId:userId, userName:userName });
 
   useEffect(() => {
     if (isAuthenticated) {
-      dispatch({ type: "LOGIN" });
+      dispatch({ 
+        type: "LOGIN", 
+        userName: userName, 
+        token: token, 
+        userId: userId });
     } else {
       dispatch({ type: "LOGOUT" });
     }

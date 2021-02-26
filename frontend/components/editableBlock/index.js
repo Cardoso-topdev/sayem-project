@@ -1,11 +1,12 @@
 import ContentEditable from "react-contenteditable";
-import { Draggable } from "react-beautiful-dnd";
-
 import styles from "./styles.module.scss";
 import TagSelectorMenu from "../tagSelectorMenu";
 import ActionMenu from "../actionMenu";
 import DragHandleIcon from "../../images/draggable.svg";
+import { Draggable } from "react-beautiful-dnd";
 import { setCaretToEnd, getCaretCoordinates, getSelection } from "../../utils";
+
+import * as APIService from "../../services/apis"
 
 const CMD_KEY = "/";
 
@@ -272,14 +273,8 @@ class EditableBlock extends React.Component {
       const formData = new FormData();
       formData.append("image", imageFile);
       try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API}/pages/images?pageId=${pageId}`,
-          {
-            method: "POST",
-            credentials: "include",
-            body: formData,
-          }
-        );
+        const response = await APIService.PageImgUpload(formData, pageId)
+        
         const data = await response.json();
         const imageUrl = data.imageUrl;
         this.setState({ ...this.state, imageUrl: imageUrl });
@@ -343,10 +338,6 @@ class EditableBlock extends React.Component {
   }
 
   render() {
-
-    console.log("editableBlock render")
-    console.log(this.props)
-    console.log(this.contentEditable)
     return (
       <>
         {this.state.tagSelectorMenuOpen && (

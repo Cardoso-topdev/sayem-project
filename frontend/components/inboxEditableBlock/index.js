@@ -10,6 +10,8 @@ import { setCaretToEnd, getCaretCoordinates, getSelection } from "../../utils";
 import Divider from '@material-ui/core/Divider';
 import PlaylistAddIcon from '@material-ui/icons/PlaylistAdd';
 import AddIcon from '@material-ui/icons/Add';
+import * as APIService from "../../services/apis"
+import cookies from "next-cookies";
 const CMD_KEY = "/";
 
 // library does not work with hooks
@@ -73,14 +75,12 @@ class InboxEditableBlock extends React.Component {
   componentDidMount() {
     // Add a placeholder if the first block has no sibling elements and no content
     // this.getMetaData(this.props.html) // we want to get rid of this and just retrieve the data from the stored object id
-    console.log("componentdidmount")
     const hasPlaceholder = this.addPlaceholder({
       block: this.contentEditable.current,
       position: this.props.position,
       content: this.props.html || this.props.html2 || this.props.imageUrl,
     });
     if (!hasPlaceholder) {
-      // console.log(this.props.html)
       this.setState({
         ...this.state,
         html: this.props.html,
@@ -104,13 +104,11 @@ class InboxEditableBlock extends React.Component {
     const html2Changed = this.props.html2 !== this.state.html2;
     const tagChanged = this.props.tag !== this.state.tag;
     const imageChanged = this.props.imageUrl !== this.state.imageUrl;
-    // console.log("hoe stopped")
     // this.getMetaData(this.props.html)
     if (
       ((stoppedTyping && htmlChanged) || (stoppedTyping && html2Changed) || tagChanged || imageChanged) &&
       hasNoPlaceholder
     ) {
-      console.log("hoe here")
       // this.getMetaData(this.props.html) 
       this.props.updateBlock({
         id: this.props.id,
@@ -124,10 +122,7 @@ class InboxEditableBlock extends React.Component {
         pathname: this.state.pathname,
       });
     } else if (htmlChanged) {
-      console.log("first time enter?")
       this.getMetaData(this.state.html).then(() => {
-        console.log("thisbtichstate") 
-        console.log(this.state)
         this.props.updateBlock({
           id: this.props.id,
           tag: this.state.tag,
@@ -149,46 +144,17 @@ class InboxEditableBlock extends React.Component {
   }
 
   async getMetaData(url) {
-    console.log("getMetaData called")
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API}/pages/url`,
-      {
-        method: "PUT",
-        credentials: "include",
-        // Forward the authentication cookie to the backend
-        headers: {
-          "Content-Type": "application/json",
-          // Cookie: req ? req.headers.cookie : undefined,
-        },
-        body: JSON.stringify({
-          url: url,
-        }),
-      });
+    const response = await APIService.PagesUrl(this.props.token, JSON.stringify({
+      url: url,
+    }), "PUT")
     const data = await response.json().then();
-    console.log("getMataData called")
-    // console.log(data)
     let settitle = data.title.length < 125 ? data.title : data.title.substring(0, 100) + "...";
-    console.log(data)
     this.setState({
       displayText: settitle,
       hostname: data.hostname,
       protocol: data.protocol,
       pathname: data.pathname,
     });
-    console.log('this.state')
-    console.log(this.state)
-    // this.props.updateBlock({
-    //     id: this.props.id,
-    //     tag: this.state.tag,
-    //     html: this.state.html,
-    //     html2: this.state.html2,
-    //     imageUrl: this.state.imageUrl,
-    //     displayText: this.state.displayText,
-    //     protocol: this.state.protocol,
-    //     hostname: this.state.hostname,
-    //     pathname: this.state.pathname,
-    // });
-    // return data.title;
   }
 
   handleChange(e) {
@@ -196,7 +162,6 @@ class InboxEditableBlock extends React.Component {
   }
 
   handleCommentChange(e) {
-    console.log("handleCommentChange called!")
     this.setState({ ...this.state, html2: e.target.value });
   }
 
@@ -228,13 +193,6 @@ class InboxEditableBlock extends React.Component {
   }
 
   handleKeyDown(e) {
-    // console.log("handlekeydown")
-    // console.log(e.key)
-    // if (e.key == "v") {
-    //   e.preventDefault();
-    //   console.log("yooooo")
-    //   this.getMetaData(this.props.html)
-    // }
     if (e.key === CMD_KEY) {
       // If the user starts to enter a command, we store a backup copy of
       // the html. We need this to restore a clean version of the content
@@ -247,22 +205,11 @@ class InboxEditableBlock extends React.Component {
       this.state.previousKey !== "Shift" &&
       !this.state.tagSelectorMenuOpen
     ) {
-      console.log("enter pressed")
       // If the user presses Enter, we want to add a new block
       // Only the Shift-Enter-combination should add a new paragraph,
       // i.e. Shift-Enter acts as the default enter behaviour
       e.preventDefault();
-      console.log("commeent entered")
       this.getMetaData(this.props.html)
-      // this.props.addBlock({
-      //   id: this.props.id,
-      //   html: this.state.html,
-      //   html2: this.state.html2,
-      //   tag: this.state.tag,
-      //   imageUrl: this.state.imageUrl,
-      //   ref: this.contentEditable.current,
-      //   hostname: this.state.hostname,
-      // });
     } else if (
       e.key === "v" &&
       this.state.previousKey !== "Shift" &&
@@ -399,14 +346,7 @@ class InboxEditableBlock extends React.Component {
       const formData = new FormData();
       formData.append("image", imageFile);
       try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API}/pages/images?pageId=${pageId}`,
-          {
-            method: "POST",
-            credentials: "include",
-            body: formData,
-          }
-        );
+        const response = await APIService.PageImgUpload(formData, pageId)
         const data = await response.json();
         const imageUrl = data.imageUrl;
         this.setState({ ...this.state, imageUrl: imageUrl });
@@ -418,13 +358,7 @@ class InboxEditableBlock extends React.Component {
 
   // Show a placeholder for blank pages
   addPlaceholder({ block, position, content }) {
-    // const isFirstBlockWithoutHtml = position === 1 && !content;
     const isFirstBlockWithoutHtml = !content;
-    // return false; 
-    // const isFirstBlockWithoutSibling = !block.parentElement.nextElementSibling;
-    // if (isFirstBlockWithoutHtml && isFirstBlockWithoutSibling) {
-    console.log("addplaceholder called")
-    console.log(this.state)
     if (isFirstBlockWithoutHtml) {
       this.setState({
         ...this.state,
@@ -598,17 +532,6 @@ class InboxEditableBlock extends React.Component {
                 </div>
               )}
 
-              
-              {/* <span
-                role="button"
-                tabIndex="0"
-                className={styles.dragHandle}
-                onClick={this.handleDragHandleClick}
-                
-              >
-                <DragIndicatorIcon className={styles.dragHandle} />
-              </span> */}
-
               <span
                 role="button"
                 tabIndex="0"
@@ -639,4 +562,11 @@ class InboxEditableBlock extends React.Component {
   }
 }
 
+export const getServerSideProps = async (context) => {
+  const { token } = cookies(context);
+
+  return {
+    props: { token:token}
+  };
+};
 export default InboxEditableBlock;

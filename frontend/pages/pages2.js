@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import cookies from "next-cookies";
 import Card from "../components/card";
 import Button from "../components/button";
@@ -13,6 +13,8 @@ import EditablePage from "../components/editablePage/index";
 import InboxPage from "../components/inboxPage/index";
 import { useRouter } from "next/router";
 import { resetServerContext } from "react-beautiful-dnd";
+import { UserStateContext } from "../../context/UserContext";
+import * as APIService from "../services/apis"
 
 const PagesPage = ({ profileid, pages, inbox, pid, creatorid, blocks }) => {
   const initialPages = pages || [];
@@ -24,18 +26,13 @@ const PagesPage = ({ profileid, pages, inbox, pid, creatorid, blocks }) => {
   const classes = useStyles();
   const router = useRouter();
 
+  const state = useContext(UserStateContext);
+  const _token = state.token;
   const publicprofile= "/user/" + profileid;
-  console.log(publicprofile)
-
-  console.log(blocks)
 
   const deleteCard = async (pageId) => {
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_API}/pages/${pageId}`, {
-        method: "DELETE",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-      });
+      await APIService.PageInfo(pageId, token, "DELETE")
       const cardIndex = cards.map((page) => page._id).indexOf(pageId);
       const updatedCards = [...cards];
       updatedCards.splice(cardIndex, 1);
@@ -56,20 +53,6 @@ const PagesPage = ({ profileid, pages, inbox, pid, creatorid, blocks }) => {
     setShowRL(false)
     setShowNotes(true)
     setShowInbox(false)
-    // const response1 = await fetch(
-    //   `${process.env.NEXT_PUBLIC_API}/pages/${pageId}`,
-    //   {
-    //     method: "GET",
-    //     credentials: "include",
-    //     // Forward the authentication cookie to the backend
-    //     headers: {
-    //       "Content-Type": "application/json",
-    //       Cookie: req ? req.headers.cookie : undefined,
-    //     },
-    //   }
-    // );
-    // const data1 = await response1.json();
-    // blocks = data.page.blocks;
   }
 
   function handleInbox() {
@@ -81,10 +64,7 @@ const PagesPage = ({ profileid, pages, inbox, pid, creatorid, blocks }) => {
   return (
     <>
       <h1 className="pageHeading">Profile</h1>
-      {/* <div className="profilepage">
-        <Button href={publicprofile}>View Your Public Profile</Button>
-      </div> */}
-
+     
       <Breadcrumbs separator="/">
         <Link color="inherit" onClick={handleInbox}>
           <InboxIcon className={classes.icon} />
@@ -171,11 +151,13 @@ export const getServerSideProps = async (context) => {
   if (!token) {
     res.writeHead(302, { Location: `/login` });
     res.end();
+    return {props: {}}
   }
 
   try {
     let pageId = '602022a58db47aa19778b687';
-    const response1 = await fetch(
+    const response1 = await 
+    fetch(
       `${process.env.NEXT_PUBLIC_API}/pages/${pageId}`,
       {
         method: "GET",
@@ -183,7 +165,8 @@ export const getServerSideProps = async (context) => {
         // Forward the authentication cookie to the backend
         headers: {
           "Content-Type": "application/json",
-          Cookie: req ? req.headers.cookie : undefined,
+          "_token": token,
+          // Cookie: req ? req.headers.cookie : undefined,
         },
       }
     );
@@ -195,7 +178,8 @@ export const getServerSideProps = async (context) => {
       // Forward the authentication cookie to the backend
       headers: {
         "Content-Type": "application/json",
-        Cookie: req ? req.headers.cookie : undefined,
+        "_token": token,
+        // Cookie: req ? req.headers.cookie : undefined,
       },
     });
 
@@ -214,8 +198,6 @@ export const getServerSideProps = async (context) => {
 
     const data = await response.json();
     const data2 = await response2.json();
-    console.log("this the user")
-    console.log(data2)
     const pageIdList = data.pages;
     const pages = await Promise.all(
       pageIdList.map(async (id) => {
@@ -227,7 +209,8 @@ export const getServerSideProps = async (context) => {
             // Forward the authentication cookie to the backend
             headers: {
               "Content-Type": "application/json",
-              Cookie: req ? req.headers.cookie : undefined,
+              "_token": token,
+              // Cookie: req ? req.headers.cookie : undefined,
             },
           }
         );
@@ -235,7 +218,7 @@ export const getServerSideProps = async (context) => {
       })
     );
     const filteredPages = pages.filter((page) => !page.errCode);
-    return { props: { profileid: data2.userId, pages: filteredPages, blocks: data1.page.blocks, pid: pageId, creatorid: data1.page.creator.toString(), inbox: data2.inbox } };
+    return { props: { profileid: data2._id, pages: filteredPages, blocks: data1.page.blocks, pid: pageId, creatorid: data1.page.creator.toString(), inbox: data2.inbox } };
   } catch (err) {
     console.log(err);
     return { props: {} };

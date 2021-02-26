@@ -1,21 +1,22 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import cookies from "next-cookies";
 
 import Card from "../components/card";
 import Button from "../components/button";
 import Notice from "../components/notice";
+import { UserStateContext } from "../../context/UserContext";
+import * as APIService from "../services/apis"
 
 const PagesPage = ({ pages }) => {
   const initialPages = pages || [];
   const [cards, setCards] = useState(initialPages.map((data) => data.page));
 
+  const state = useContext(UserStateContext);
+  const _token = state.token;
+
   const deleteCard = async (pageId) => {
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_API}/pages/${pageId}`, {
-        method: "DELETE",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-      });
+      await APIService.PageInfo(pageId, token, "DELETE")
       const cardIndex = cards.map((page) => page._id).indexOf(pageId);
       const updatedCards = [...cards];
       updatedCards.splice(cardIndex, 1);
@@ -63,34 +64,16 @@ export const getServerSideProps = async (context) => {
   if (!token) {
     res.writeHead(302, { Location: `/login` });
     res.end();
+    return {props: {}} 
   }
 
   try {
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API}/pages`, {
-      method: "GET",
-      credentials: "include",
-      // Forward the authentication cookie to the backend
-      headers: {
-        "Content-Type": "application/json",
-        Cookie: req ? req.headers.cookie : undefined,
-      },
-    });
+    const response = await APIService.GetPages(token, "GET")
     const data = await response.json();
     const pageIdList = data.pages;
     const pages = await Promise.all(
       pageIdList.map(async (id) => {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API}/pages/${id}`,
-          {
-            method: "GET",
-            credentials: "include",
-            // Forward the authentication cookie to the backend
-            headers: {
-              "Content-Type": "application/json",
-              Cookie: req ? req.headers.cookie : undefined,
-            },
-          }
-        );
+        const response = await APIService.PageInfo(id, token, "GET")
         return await response.json();
       })
     );

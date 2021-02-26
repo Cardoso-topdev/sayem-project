@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useRouter } from "next/router";
 import { DragDropContext, Droppable } from "react-beautiful-dnd";
 import Button from "../../components/button";
@@ -17,6 +17,8 @@ import ViewListIcon from '@material-ui/icons/ViewList';
 import NotesIcon from '@material-ui/icons/Notes';
 import ContentEditable from "react-contenteditable";
 import styles from "./styles.module.scss";
+import { UserStateContext } from "../../context/UserContext";
+import * as APIService from "../../services/apis"
 
 const useStyles = makeStyles((theme) => ({
   link: {
@@ -34,29 +36,10 @@ const useStyles = makeStyles((theme) => ({
     paddingBottom: 10,
   }
 }));
-
-// A page is represented by an array containing several blocks
-// [
-//   {
-//     _id: "5f54d75b114c6d176d7e9765",
-//     html: "Heading",
-//     tag: "h1",
-//     imageUrl: "",
-//   },
-//   {
-//     _id: "5f54d75b114c6d176d7e9766",
-//     html: "I am a <strong>paragraph</strong>",
-//     tag: "p",
-//     imageUrl: "",
-//   },
-//     _id: "5f54d75b114c6d176d7e9767",
-//     html: "/im",
-//     tag: "img",
-//     imageUrl: "images/test.png",
-//   }
-// ]
-
-const InboxPage = ({ id, creatorid, pageIdList, filteredPages, fetchedBlocks, err }) => {
+const InboxPage = ({  pageIdList, 
+  filteredPages, 
+  userData, 
+  err }) => {
   if (err) {
     return (
       <Notice status="ERROR">
@@ -65,36 +48,29 @@ const InboxPage = ({ id, creatorid, pageIdList, filteredPages, fetchedBlocks, er
       </Notice>
     );
   }
+  const state = useContext(UserStateContext);
+  const _token = state.token;
+
   const initialPages = filteredPages || [];
   const [cards, setCards] = useState(initialPages.map((data) => data.page));
   const [showInbox, setShowInbox] = useState(true)
   const [showRL, setShowRL] = useState(false)
   const [showNotes, setShowNotes] = useState(false)
   const router = useRouter();
-  const [blocks, setBlocks] = useState(fetchedBlocks);
+  const [blocks, setBlocks] = useState(userData.inboxBlocks);
   const [currentBlockId, setCurrentBlockId] = useState(null);
   const classes = useStyles();
   const contentEditable = React.createRef();
   const prevBlocks = usePrevious(blocks);
   let block1 = blocks[0];
-  console.log("fetchedBlocks")
-  console.log(fetchedBlocks)
 
   // Update the database whenever blocks change
   useEffect(() => {
     const updatePageOnServer = async (blocks) => {
       try {
-        await fetch(
-          `${process.env.NEXT_PUBLIC_API}/users/account/inbox`,
-          {
-            method: "PUT",
-            credentials: "include",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              blocks: blocks,
-            }),
-          }
-        );
+        await APIService.UserAccountInbox(_token, "PUT", JSON.stringify({
+          blocks: blocks,
+        }))
       } catch (err) {
         console.log(err);
       }
@@ -135,16 +111,7 @@ const InboxPage = ({ id, creatorid, pageIdList, filteredPages, fetchedBlocks, er
     // The imageUrl contains images/name.jpg, hence we do not need
     // to explicitly add the /images endpoint in the API url
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API}/pages/${imageUrl}`,
-        {
-          method: "DELETE",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await APIService.PageInfo(imageUrl, _token, "DELETE")
       await response.json();
     } catch (err) {
       console.log(err);
@@ -152,7 +119,6 @@ const InboxPage = ({ id, creatorid, pageIdList, filteredPages, fetchedBlocks, er
   };
 
   const updateBlockHandler = (currentBlock) => {
-    console.log("updateBlockHandler called")
     const index = blocks.map((b) => b._id).indexOf(currentBlock.id);
     const oldBlock = blocks[index];
     const updatedBlocks = [...blocks];
@@ -178,8 +144,6 @@ const InboxPage = ({ id, creatorid, pageIdList, filteredPages, fetchedBlocks, er
   const addBlockHandler = (currentBlock) => {
     setCurrentBlockId(currentBlock.id);
     const index = blocks.map((b) => b._id).indexOf(currentBlock.id);
-    console.log(index)
-    console.log(blocks)
     
     const updatedBlocks = [...blocks];
     const newBlock =  {  
@@ -205,32 +169,6 @@ const InboxPage = ({ id, creatorid, pageIdList, filteredPages, fetchedBlocks, er
     };
     setBlocks(updatedBlocks);
   };
-
-  function addBlockToEndHandler2() {
-    console.log("addBlockHandler2")
-    let index = blocks.length - 1;
-
-    let currentBlock = blocks[blocks.length - 1]
-    setCurrentBlockId(currentBlock.id);
-    console.log(currentBlock)
-    console.log(index)
-    console.log(blocks)
-    const updatedBlocks = [...blocks];
-    console.log("updatedBlocks")
-    console.log(updatedBlocks)
-    // const newBlock = { _id: objectId(), tag: "p", html: "", imageUrl: "" };
-    // console.log(blocks)
-    // console.log(updatedBlocks)
-    // console.log(index)
-    // updatedBlocks.splice(index + 1, 0, newBlock);
-    // updatedBlocks[index] = {
-    //   ...updatedBlocks[index],
-    //   tag: currentBlock.tag,
-    //   html: currentBlock.html,
-    //   imageUrl: currentBlock.imageUrl,
-    // };
-    // setBlocks(updatedBlocks);
-  }
 
   const deleteBlockHandler = (currentBlock) => {
     if (blocks.length > 1) {
@@ -263,116 +201,48 @@ const InboxPage = ({ id, creatorid, pageIdList, filteredPages, fetchedBlocks, er
     setBlocks(updatedBlocks);
   };
 
-  function handleInbox() {
-    router.push('/' + id);
+  const handleInbox = () => {
+    console.log("USERDATA: " + userData._id);
+    router.push('/' + userData._id);
   }
 
-  function handleRL() {
-    router.push('/' + id + "/rlists");
+  const handleRL = () => {
+    router.push('/' + userData._id + "/rlists");
   }
 
-  function handleNotes () {
-    router.push('/' + id + "/notes");
+  const handleNotes =  () => {
+    router.push('/' + userData._id + "/notes");
   }
 
   return (
     <>
-      {/* <h1 className="pageHeading">💐💐💐, {creatorid}! </h1> */}
-      {/* <h2 >💐💐💐 </h2> */}
-      {/* <h3 className="pageHeading"> @sayemhoque </h3>
-      <h3 className="pageHeading"> your bio here </h3>
-      <br></br>
-      <br></br>
-      <br></br>
-      <br></br>
-      <br></br> */}
-      
-      <BioHeader style={{ marginBottom: "1rem" }}>
-        <h4>Sayem Hoque</h4>
-        <p>@sayemhoque</p>
-        <p>Hi there, I'm Sayem!</p>
-        
-        
-        {/* <DragDropContext onDragEnd={onDragEndHandler}>
-          <Droppable droppableId={id}>
-            {(provided) => (
-              <div ref={provided.innerRef} {...provided.droppableProps}>
-                <EditableBlock
-                  key={block1._id}
-                  position={0}
-                  id={block1._id}
-                  tag={block1.tag}
-                  html={block1.html}
-                  html2={block1.html2}
-                  imageUrl={block1.imageUrl}
-                  displayText={block1.displayText}
-                  protocol={block1.protocol}
-                  hostname={block1.hostname}
-                  pathname={block1.pathname}
-                  pageId={id}
-                  disabled={true}
-                  addBlock={addBlockHandler}
-                  deleteBlock={deleteBlockHandler}
-                  updateBlock={updateBlockHandler}
-                />
-                {provided.placeholder}
-              </div>
-            )}
-          </Droppable>
-        </DragDropContext> */}
-      </BioHeader>
+      <BioHeader 
+        style={{ marginBottom: "1rem" }} 
+        userData = {userData} />
 
       <Breadcrumbs separator="/">
         <Link color="inherit" style={{fontSize:"2em", cursor:"pointer"}} onClick={handleInbox}>
-          <InboxIcon className={classes.icon} />
+          <InboxIcon />
           Inbox
         </Link>
         <Link color="inherit" style={{fontSize:"1.1em", cursor:"pointer"}} onClick={handleNotes}>
-          <NotesIcon className={classes.icon} />
+          <NotesIcon />
           Notes
         </Link>
         <Link color="inherit" style={{fontSize:"1.1em", cursor:"pointer"}} onClick={handleRL}>
-          <ViewListIcon className={classes.icon} />
+          <ViewListIcon />
           Lists
         </Link>
-        
-
       </Breadcrumbs>
       <br></br>
-
-
-
-
-      {/* {blocks.length !== 0 && (
-        <Notice style={{ marginBottom: "1rem" }}>
-          <p>You have {blocks.length} unread items in your inbox.</p>
-        </Notice>
-      )} */}
-
-      {/* {blocks.length === 0 && (
-        <Notice style={{ marginBottom: "2rem" }}>
-          <p>You have 0 unread items in your inbox. Add items here or via the browser extension!</p>
-        </Notice>
-      )} */}
-
-      {/* {cards.length === 0 && (
-          <Notice style={{ marginBottom: "2rem" }}>
-            <h3>Let's go!</h3>
-            <p>Seems like you haven't created any pages so far.</p>
-            <p>How about starting now?</p>
-          </Notice>
-        )} */}
-        
       <DragDropContext onDragEnd={onDragEndHandler}>
-        <Droppable droppableId={id}>
+        <Droppable droppableId={userData._id}>
           {(provided) => (
             <div ref={provided.innerRef} {...provided.droppableProps}>
               {blocks.map((block) => {
                 const position =
                   blocks.map((b) => b._id).indexOf(block._id) + 1;
-                console.log(block)
                 return (
-                  <>
                   <InboxEditableBlock
                     key={block._id}
                     position={position}
@@ -385,13 +255,11 @@ const InboxPage = ({ id, creatorid, pageIdList, filteredPages, fetchedBlocks, er
                     protocol={block.protocol}
                     hostname={block.hostname}
                     pathname={block.pathname}
-                    pageId={id}
+                    pageId={userData.userId}
                     addBlock={addBlockHandler}
                     deleteBlock={deleteBlockHandler}
                     updateBlock={updateBlockHandler}
                   />
-
-                  </>
                 );
               })}
               {provided.placeholder}

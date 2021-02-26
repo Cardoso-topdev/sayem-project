@@ -15,6 +15,10 @@ const userSchema = new Schema(
       type: String,
       required: true,
     },
+    bio: {
+      type: String,
+      required: false,
+    },
     active: {
       type: Boolean,
       required: true,
@@ -29,6 +33,8 @@ const userSchema = new Schema(
     resetTokenExpiry: {
       type: Number,
     },
+    followers:[],
+    following:[],
     inboxBlocks: [
       {
         tag: {

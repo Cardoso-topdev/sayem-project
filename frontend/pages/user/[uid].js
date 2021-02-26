@@ -1,4 +1,5 @@
 import { resetServerContext } from "react-beautiful-dnd";
+import cookies from "next-cookies";
 
 import ProfilePage from "../../components/readingListsPage/index";
 
@@ -9,6 +10,7 @@ const IndexPage = ({ uid, pageIdList, filteredPages, creatorid, blocks, err }) =
 export const getServerSideProps = async (context) => {
   resetServerContext(); // needed for drag and drop functionality
   const pageId = context.query.uid;
+  const { token } = cookies(context);
   const req = context.req;
   try {
 
@@ -20,7 +22,8 @@ export const getServerSideProps = async (context) => {
         // Forward the authentication cookie to the backend
         headers: {
           "Content-Type": "application/json",
-          Cookie: req ? req.headers.cookie : undefined,
+          "_token": token,
+          // Cookie: req ? req.headers.cookie : undefined,
         },
       }
     );
@@ -38,7 +41,8 @@ export const getServerSideProps = async (context) => {
             // Forward the authentication cookie to the backend
             headers: {
               "Content-Type": "application/json",
-              Cookie: req ? req.headers.cookie : undefined,
+              "_token": token,
+              // Cookie: req ? req.headers.cookie : undefined,
             },
           }
         );
