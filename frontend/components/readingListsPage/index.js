@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useRouter } from "next/router";
 import { DragDropContext, Droppable } from "react-beautiful-dnd";
 import Button from "../button";
@@ -15,6 +15,8 @@ import { makeStyles } from '@material-ui/core/styles';
 import ViewListIcon from '@material-ui/icons/ViewList';
 import NotesIcon from '@material-ui/icons/Notes';
 import BioHeader from "../bioheader";
+import { UserStateContext } from "../../context/UserContext";
+import * as APIService from "../../services/apis"
 
 const useStyles = makeStyles((theme) => ({
   link: {
@@ -47,6 +49,9 @@ const ReadingListsPage = ({
       </Notice>
     );
   }
+  const state = useContext(UserStateContext);
+  const _token = state.token;
+
   const initialPages = filteredPages || [];
   permanentPages = permanentPages || [];
   const [cards, setCards] = useState(initialPages.map((data) => data.page));
@@ -60,19 +65,15 @@ const ReadingListsPage = ({
   const classes = useStyles();
 
   let likes = pcards[0]
-  let likesupdatedAtDate = new Date(Date.parse(likes.updatedAt));
+  let likesupdatedAtDate = likes ? new Date(Date.parse(likes.updatedAt)) : new Date();
 
   let archive = pcards[1]
-  let archiveupdatedAtDate = new Date(Date.parse(likes.updatedAt)); 
+  let archiveupdatedAtDate = archive ? new Date(Date.parse(likes.updatedAt)) : new Date(); 
   const prevBlocks = usePrevious(blocks);
 
   const deleteCard = async (pageId) => {
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_API}/pages/${pageId}`, {
-        method: "DELETE",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-      });
+      await APIService.PageInfo(pageId, _token, "DELETE")
       const cardIndex = cards.map((page) => page._id).indexOf(pageId);
       const updatedCards = [...cards];
       updatedCards.splice(cardIndex, 1);
@@ -85,20 +86,9 @@ const ReadingListsPage = ({
   const createCard = async () => {
     try {
       const blocks = [{ tag: "h1", html: "New Playlist", imageUrl: "" }];
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API}/pages/postpage`, {
-        method: "POST",
-        credentials: "include",
-        headers: { 
-          "Content-Type": "application/json",
-          // truly need to figure out if i should "forward the authentication cookie to the backend"
-          // Cookie: req ? req.headers.cookie : undefined,
-        },
-        
-        body: JSON.stringify({
-          blocks: blocks,
-          userId: userData._id,
-        }),
-      });
+      const response = await APIService.PagesPostPage(_token, JSON.stringify({
+        blocks: blocks,
+      }), "POST")
       const data = await response.json()
       const updatedCards = [...cards];
       updatedCards.push(data.page)
@@ -151,18 +141,20 @@ const ReadingListsPage = ({
           </Notice>
         )}
 
-        <PermanentCard
+        {likes && <PermanentCard
           key={0}
           pageId={likes._id}
           date={likesupdatedAtDate}
+          userData = {userData}
           content={likes.blocks}
-        />
-        <PermanentCard
+        /> }
+        {archive && <PermanentCard
           key={1}
           pageId={archive._id}
           date={archiveupdatedAtDate}
+          userData = {userData}
           content={archive.blocks}
-        />
+        /> }
         {cards.map((page, key) => {
           const updatedAtDate = new Date(Date.parse(page.updatedAt));
           const pageId = page._id;
@@ -173,6 +165,7 @@ const ReadingListsPage = ({
               pageId={pageId}
               date={updatedAtDate}
               content={blocks}
+              userData = {userData}
               deleteCard={(pageId) => deleteCard(pageId)}
             />
           );

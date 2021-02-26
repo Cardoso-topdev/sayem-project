@@ -69,7 +69,7 @@ router.post(
 router.post("/activate", usersController.activateAccount);
 
 // POST /users/follow
-router.post("/follow", usersController.followUser);
+router.post("/follow", isAuth, usersController.followUser);
 
 // POST /users/follow
 router.post("/saveBioText", usersController.saveBioText);

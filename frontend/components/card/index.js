@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
 import { useRouter } from "next/router";
-
+import { UserStateContext } from "../../context/UserContext";
 import DOMPurify from "isomorphic-dompurify";
 
 import ContextMenu from "../contextMenu";
@@ -22,9 +22,13 @@ const MONTHS = [
   "Dec",
 ];
 
-const Card = ({ pageId, date, content, deleteCard }) => {
+const Card = ({ pageId, date, content, deleteCard, userData }) => {
   const router = useRouter();
   const [isContextMenuOpen, setIsContextMenuOpen] = useState(false);
+
+  const state = useContext(UserStateContext);
+  const userId = state.userId;
+  let bEditable = userId == userData._id;
 
   // In the card preview, we only want to show textual content
   const textContent = content.filter((block) => block.tag !== "img");
@@ -53,7 +57,7 @@ const Card = ({ pageId, date, content, deleteCard }) => {
 
   return (
     <div className={styles.cardWrapper}>
-      <a href={`/p/${pageId}`}>
+      {bEditable && <a href={`/p/${pageId}`}>
         <article className={styles.card}>
           <div className={styles.date}>{formattedDate}</div>
           <div className={styles.content}>
@@ -66,12 +70,26 @@ const Card = ({ pageId, date, content, deleteCard }) => {
             })}
           </div>
         </article>
-      </a>
+      </a> || <a>
+        <article className={styles.card}>
+          <div className={styles.date}>{formattedDate}</div>
+          <div className={styles.content}>
+            {textContent.map((block, key) => {
+              const HTMLTag = block.tag;
+              const html = DOMPurify.sanitize(block.html);
+              return (
+                <HTMLTag key={key} dangerouslySetInnerHTML={{ __html: html }} />
+              );
+            })}
+          </div>
+        </article>
+      </a>}
+      
       <span
         role="button"
         tabIndex="0"
         className={styles.moreButton}
-        onClick={() => toggleContextMenu()}
+        onClick={() => bEditable && toggleContextMenu()}
       >
         <img src={MoreIcon} alt="Icon" />
       </span>

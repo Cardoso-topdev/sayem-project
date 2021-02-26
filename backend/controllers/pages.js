@@ -183,7 +183,7 @@ const postPage = async (req, res, next) => {
 
 // i think this is update page
 const putPage = async (req, res, next) => {
-  const userId = req.userId;
+  const userId = req.body.userId;
   const pageId = req.params.pageId;
   const blocks = req.body.blocks;
 

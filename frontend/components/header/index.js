@@ -3,7 +3,7 @@ import Button from "../button";
 import ContextMenu from "../contextMenu";
 import UserIcon from "../../images/user.svg";
 
-const Header = ({isLoginPage, isAuth, isContextMenuOpen, toggleContextMenu, handleNavigation, closeContextMenu}) => {
+const Header = ({isLoginPage, isAuth, userId, userName, isContextMenuOpen, toggleContextMenu, handleNavigation, closeContextMenu}) => {
   return (
     <header className={styles.headerBar}>
       <div className={styles.logo}>
@@ -15,6 +15,7 @@ const Header = ({isLoginPage, isAuth, isContextMenuOpen, toggleContextMenu, hand
         {!isLoginPage && !isAuth  && <Button href="/login">Login</Button>}
         {!isLoginPage && isAuth  && (
           <div className={styles.user}>
+            <p>{userName}</p>
             <span
               role="button"
               tabIndex="0"

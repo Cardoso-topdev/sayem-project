@@ -1,4 +1,6 @@
 import Notice from "../components/notice";
+import cookies from "next-cookies";
+import * as APIService from "../services/apis"
 
 const ActivateAccountPage = ({ activated, message }) => {
   const noticeType = activated ? "SUCCESS" : "ERROR";
@@ -13,6 +15,7 @@ const ActivateAccountPage = ({ activated, message }) => {
 
 export const getServerSideProps = async (context) => {
   const req = context.req;
+  const { token } = cookies(context);
 
   try {
     const activationToken = context.query.token;
@@ -20,21 +23,9 @@ export const getServerSideProps = async (context) => {
       throw new Error("Missing activation code.");
     }
 
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API}/users/activate`,
-      {
-        method: "POST",
-        credentials: "include",
-        // Forward the authentication cookie to the backend
-        headers: {
-          "Content-Type": "application/json",
-          Cookie: req ? req.headers.cookie : undefined,
-        },
-        body: JSON.stringify({
-          activationToken: activationToken,
-        }),
-      }
-    );
+    const response = await APIService.UsersActivate(token, "POST", JSON.stringify({
+      activationToken: activationToken,
+    }))
     const data = await response.json();
 
     if (data.errCode) {

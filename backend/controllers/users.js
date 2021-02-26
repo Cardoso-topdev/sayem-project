@@ -90,17 +90,9 @@ const signup = async (req, res, next) => {
 
     // Set cookie in the browser to store authentication state
     const maxAge = 1000 * 60 * 60; // * 60 * 24 * 3; // 3 days
-    res.cookie("token", token, {
-      httpOnly: true,
-      maxAge: maxAge,
-      domain: process.env.DOMAIN,
-    });
-
-    res.cookie("userId", user._id.toString(), {
-      httpOnly: true,
-      maxAge: maxAge,
-      domain: process.env.DOMAIN,
-    });
+    res.cookie("token", token);
+    res.cookie("userId", user._id.toString());
+    res.cookie("userName", user.name);
 
     res.status(201).json({
       message: "User successfully created.",
@@ -121,14 +113,13 @@ const googlogin = async (req, res, next) => {
     const savedUser = await User.findOne({ email: email });
     
     if (!savedUser) {
-      const user = new User({
+      savedUser = new User({
         email: email,
         password: hashedPassword,
         name: email,
         bio: "Hi there!",
         activationToken: activationToken,
       });
-      savedUser = await user.save();
     } else {
       const isEqual = await bcrypt.compare(uid, savedUser.password)
       if (!isEqual) {
@@ -143,16 +134,10 @@ const googlogin = async (req, res, next) => {
     );
     // Set cookie in the browser to store authentication state
     const maxAge = 1000 * 60 * 60; // 1 hour
-    res.cookie("token", token, {
-      httpOnly: true,
-      maxAge: maxAge,
-      domain: process.env.DOMAIN,
-    });
-    res.cookie("userId", savedUser._id.toString(), {
-      httpOnly: true,
-      maxAge: maxAge,
-      domain: process.env.DOMAIN,
-    });
+    res.cookie("token", token);
+    res.cookie("userId", savedUser._id.toString());
+    res.cookie("userName", savedUser.name);
+
     res.status(201).json({
       message: "User successfully logged in.",
       token: token,
@@ -195,20 +180,15 @@ const login = async (req, res, next) => {
     );
     // Set cookie in the browser to store authentication state
     const maxAge = 1000 * 60 * 60; // 1 hour
-    res.cookie("token", token, {
-      httpOnly: true,
-      maxAge: maxAge,
-      domain: process.env.DOMAIN,
-    });
-    res.cookie("userId", user._id.toString(), {
-      httpOnly: true,
-      maxAge: maxAge,
-      domain: process.env.DOMAIN,
-    });
+    res.cookie("token", token);
+    res.cookie("userId", user._id.toString());
+    res.cookie("userName", user.name);
+
     res.status(201).json({
       message: "User successfully logged in.",
       token: token,
       userId: user._id.toString(),
+      userName:user.name
     });
   } catch (err) {
     next(err);
@@ -216,7 +196,7 @@ const login = async (req, res, next) => {
 };
 
 const logout = (req, res, next) => {
-  const userId = req.userId;
+  const userId = req.body.userId;
   try {
     if (!userId) {
       console.log("no userId")
@@ -224,12 +204,9 @@ const logout = (req, res, next) => {
       err.statusCode = 401;
       throw err;
     }
-    res.clearCookie("token", { domain: process.env.DOMAIN, path:'/logout' });
-    res.clearCookie("token", { domain: process.env.DOMAIN, path:'/login' });
-    res.clearCookie("token", { domain: process.env.DOMAIN, path:'/pages' });
-    res.clearCookie("token", { domain: process.env.DOMAIN, path:'/users' });
-    res.clearCookie("token", { domain: process.env.DOMAIN, path:'/' });
+    res.clearCookie("token");
     res.clearCookie("userId");
+    res.clearCookie("userName");
     req.session = null
     res.status(200).json({
       message: "User successfully logged out.",
@@ -274,7 +251,8 @@ const getUserList = async (req, res, next) => {
 };
 
 const updateUser = async (req, res, next) => {
-  const userId = req.userId;
+  console.log("UPDATE USER CALLED", req.body);
+  const userId = req.body.userId;
   const name = req.body.name;
   const email = req.body.email;
   const password = req.body.password;
@@ -310,11 +288,11 @@ const updateUser = async (req, res, next) => {
 };
 
 const updateInbox = async (req, res, next) => {
-  const userId = req.userId;
+  const userId = req.body.userId;
   const blocks = req.body.blocks;
   try {
     const user = await User.findById(userId);
-
+    console.log(userId);
     if (!userId || !user) {
       const err = new Error("User is not authenticated.");
       err.statusCode = 401;

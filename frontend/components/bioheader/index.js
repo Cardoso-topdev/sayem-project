@@ -2,11 +2,13 @@ import { useState, useContext } from "react";
 import { UserStateContext } from "../../context/UserContext";
 import styles from "./styles.module.scss";
 import CloseIcon from "../../images/close.svg";
+import * as APIService from "../../services/apis"
 
 const BioHeader = ({ userData, style, dismissible }) => {
 
   const state = useContext(UserStateContext);
   const userId = state.userId;
+  const _token = state.token;
 
   const [isVisible, setIsVisible] = useState(true);
   const [bioText, setBioText] = useState(userData.bio);
@@ -18,34 +20,17 @@ const BioHeader = ({ userData, style, dismissible }) => {
 
   console.log(userId, userData._id);
   const saveBioText = async () => {
-    await fetch(`${process.env.NEXT_PUBLIC_API}/users/saveBioText`, {
-      method: "POST",
-      credentials: "include",
-      headers: { 
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        userId: userId,
-        bioText: bioText,
-      }),
-    });
-
+    await APIService.SaveBioText(_token, JSON.stringify({
+      bioText: bioText,
+    }));
     setNewBioText(bioText)
   }
   const followUser = async () => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API}/users/follow`, {
-        method: "POST",
-        credentials: "include",
-        headers: { 
-          "Content-Type": "application/json",
-        },
-        
-        body: JSON.stringify({
-          userId: userData._id,
-          followerId: userId,
-        }),
-      });
+      const response = await APIService.UserFollow(_token, JSON.stringify({
+        followerId: userId,
+      }));
+
       const resFollow = await response.json();
       setFollowingCnt(resFollow.following.length)
       console.log("RECEIVED!", followingCnt);

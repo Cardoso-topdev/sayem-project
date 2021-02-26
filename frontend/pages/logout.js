@@ -2,10 +2,11 @@ import { useEffect } from "react";
 import useRouter from "next/router";
 
 import cookies from "next-cookies";
-import authentication from '../../services/authentication';
+import {removeCookies} from 'cookies-next';
 import { useGoogleLogout } from 'react-google-login';
+import * as APIService from "../services/apis"
 
-const LogoutPage = () => {
+const LogoutPage = ({token, userId}) => {
 
   const clientId =
   '89981139684-5h2uvgps27q8couh86pcffl6vrcve3kb.apps.googleusercontent.com';
@@ -30,12 +31,14 @@ const LogoutPage = () => {
         await fetch(`${process.env.NEXT_PUBLIC_API}/users/logout`, {
           method: "POST",
           credentials: "include",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json"},
+          body: JSON.stringify({
+            "_token": token,
+            userId: userId
+          }),
         });
         // router.push("/login");
-        setTimeout(() => {
-          router.push("/login");
-        }, 400);
+        router.push("/login");
       } catch (err) {
         console.log(err);
       }
@@ -47,13 +50,17 @@ const LogoutPage = () => {
 };
 
 export const getServerSideProps = async (context) => {
-  const { token } = cookies(context);
+  const { token, userId } = cookies(context);
   const res = context.res;
-  if (!token) {
-    res.writeHead(302, { Location: `/login` });
-    res.end();
+  if (token) {
+    await APIService.Logout(token);
   }
-  return { props: {} };
+  removeCookies(context, "token")
+  removeCookies(context, "userId")
+  removeCookies(context, "userName")
+  res.writeHead(302, { Location: `/login` });
+  res.end();
+  return {props: {}}
 };
 
 export default LogoutPage;

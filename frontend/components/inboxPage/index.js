@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useRouter } from "next/router";
 import { DragDropContext, Droppable } from "react-beautiful-dnd";
 import Button from "../../components/button";
@@ -17,6 +17,8 @@ import ViewListIcon from '@material-ui/icons/ViewList';
 import NotesIcon from '@material-ui/icons/Notes';
 import ContentEditable from "react-contenteditable";
 import styles from "./styles.module.scss";
+import { UserStateContext } from "../../context/UserContext";
+import * as APIService from "../../services/apis"
 
 const useStyles = makeStyles((theme) => ({
   link: {
@@ -46,6 +48,9 @@ const InboxPage = ({  pageIdList,
       </Notice>
     );
   }
+  const state = useContext(UserStateContext);
+  const _token = state.token;
+
   const initialPages = filteredPages || [];
   const [cards, setCards] = useState(initialPages.map((data) => data.page));
   const [showInbox, setShowInbox] = useState(true)
@@ -63,17 +68,9 @@ const InboxPage = ({  pageIdList,
   useEffect(() => {
     const updatePageOnServer = async (blocks) => {
       try {
-        await fetch(
-          `${process.env.NEXT_PUBLIC_API}/users/account/inbox`,
-          {
-            method: "PUT",
-            credentials: "include",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              blocks: blocks,
-            }),
-          }
-        );
+        await APIService.UserAccountInbox(_token, "PUT", JSON.stringify({
+          blocks: blocks,
+        }))
       } catch (err) {
         console.log(err);
       }
@@ -114,16 +111,7 @@ const InboxPage = ({  pageIdList,
     // The imageUrl contains images/name.jpg, hence we do not need
     // to explicitly add the /images endpoint in the API url
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API}/pages/${imageUrl}`,
-        {
-          method: "DELETE",
-          headers: {
-            Accept: "application/json",
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await APIService.PageInfo(imageUrl, _token, "DELETE")
       await response.json();
     } catch (err) {
       console.log(err);

@@ -57,6 +57,15 @@ const fileFilter = (req, file, cb) => {
 
 const app = express();
 // app.use(cors());
+app.use(bodyParser.json());
+app.use(function (req, res, next) {
+  console.log("=======================");
+  console.log(req.url) // populated!
+  console.log(req.params) // populated!
+  console.log(req.body) // populated!
+  console.log("=======================");
+  next()
+})
 
 app.use((req, res, next) => {
   // res.header("Access-Control-Allow-Origin", "https://readwithmev1.herokuapp.com");

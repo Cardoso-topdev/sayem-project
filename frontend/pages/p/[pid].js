@@ -1,4 +1,6 @@
 import { resetServerContext } from "react-beautiful-dnd";
+import cookies from "next-cookies";
+import * as APIService from "../../services/apis"
 
 import EditablePage from "../../components/editablePage/index";
 
@@ -8,24 +10,21 @@ const Page = ({ pid, creatorid, blocks, err }) => {
 
 export const getServerSideProps = async (context) => {
   resetServerContext(); // needed for drag and drop functionality
+  const { token } = cookies(context);
   const pageId = context.query.pid;
   const req = context.req;
+  const res = context.res;
   try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API}/pages/${pageId}`,
-      {
-        method: "GET",
-        credentials: "include",
-        // Forward the authentication cookie to the backend
-        headers: {
-          "Content-Type": "application/json",
-          Cookie: req ? req.headers.cookie : undefined,
-        },
-      }
-    );
+    if ( !pageId ){
+      console.log("?????????????", pageId);
+      res.writeHead(302, { Location: `/login` });
+      res.end(); 
+      return {props: {}} 
+    }
+    const response = await APIService.PageInfo(pageId, token, "GET")
     const data = await response.json();
     let creatorid = "";
-    if (data.page.creator)
+    if (data.page && data.page.creator)
       creatorid = data.page.creator.toString();
     return {
       props: { blocks: data.page.blocks, pid: pageId, creatorid: creatorid, err: false },

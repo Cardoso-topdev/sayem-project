@@ -1,5 +1,7 @@
 import Notice from "../components/notice";
 import UserCard from "../components/userCard";
+import cookies from "next-cookies";
+import * as APIService from "../services/apis"
 
 const UsersPage = ({ users }) => {
   // console.log(users);
@@ -16,8 +18,9 @@ const UsersPage = ({ users }) => {
 
 export const getServerSideProps = async (context) => {
   const req = context.req;
+  const { token } = cookies(context);
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API}/users/getUserList`)
+    const res = await APIService.GetUserList(token);
     const data = await res.json()
     if (data.errCode) {
       throw new Error(data.message);

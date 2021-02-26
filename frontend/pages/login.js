@@ -123,7 +123,7 @@ const LoginPage = () => {
       if (data.errCode) {
         setNotice({ type: "ERROR", message: data.message });
       } else {
-        dispatch({ type: "LOGIN", userId: data.userId });
+        dispatch({ type: "LOGIN", userId: data.userId, userName: data.userName });
         // router.push("/pages");
         router.push("/" + data.userId);
       }

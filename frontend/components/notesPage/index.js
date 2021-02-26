@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useRouter } from "next/router";
 import { DragDropContext, Droppable } from "react-beautiful-dnd";
 import Button from "../button";
@@ -14,6 +14,8 @@ import { makeStyles } from '@material-ui/core/styles';
 import ViewListIcon from '@material-ui/icons/ViewList';
 import NotesIcon from '@material-ui/icons/Notes';
 import BioHeader from "../bioheader";
+import { UserStateContext } from "../../context/UserContext";
+import * as APIService from "../../services/apis"
 
 const useStyles = makeStyles((theme) => ({
   link: {
@@ -41,6 +43,8 @@ const NotesPage = ({ filteredPages, fetchedBlocks, err, userData }) => {
       </Notice>
     );
   }
+  const state = useContext(UserStateContext);
+  const _token = state.token;
   const initialPages = filteredPages || [];
   const [cards, setCards] = useState(initialPages.map((data) => data.page));
   const [showInbox, setShowInbox] = useState(true)
@@ -56,14 +60,9 @@ const NotesPage = ({ filteredPages, fetchedBlocks, err, userData }) => {
   useEffect(() => {
     const updatePageOnServer = async (blocks) => {
       try {
-        await fetch(`${process.env.NEXT_PUBLIC_API}/pages/${userData._id}`, {
-          method: "PUT",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            blocks: blocks,
-          }),
-        });
+        await APIService.PageInfo(userData._id, _token, "PUT", JSON.stringify({
+          blocks: blocks,
+        }))
       } catch (err) {
         console.log(err);
       }
@@ -152,6 +151,7 @@ const NotesPage = ({ filteredPages, fetchedBlocks, err, userData }) => {
               pageId={pageId}
               date={updatedAtDate}
               content={blocks}
+              userData={userData}
               deleteCard={(pageId) => deleteCard(pageId)}
             />
           );

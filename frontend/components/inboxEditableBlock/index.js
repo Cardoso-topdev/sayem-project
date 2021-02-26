@@ -10,6 +10,8 @@ import { setCaretToEnd, getCaretCoordinates, getSelection } from "../../utils";
 import Divider from '@material-ui/core/Divider';
 import PlaylistAddIcon from '@material-ui/icons/PlaylistAdd';
 import AddIcon from '@material-ui/icons/Add';
+import * as APIService from "../../services/apis"
+import cookies from "next-cookies";
 const CMD_KEY = "/";
 
 // library does not work with hooks
@@ -142,20 +144,9 @@ class InboxEditableBlock extends React.Component {
   }
 
   async getMetaData(url) {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_API}/pages/url`,
-      {
-        method: "PUT",
-        credentials: "include",
-        // Forward the authentication cookie to the backend
-        headers: {
-          "Content-Type": "application/json",
-          // Cookie: req ? req.headers.cookie : undefined,
-        },
-        body: JSON.stringify({
-          url: url,
-        }),
-      });
+    const response = await APIService.PagesUrl(this.props.token, JSON.stringify({
+      url: url,
+    }), "PUT")
     const data = await response.json().then();
     let settitle = data.title.length < 125 ? data.title : data.title.substring(0, 100) + "...";
     this.setState({
@@ -355,14 +346,7 @@ class InboxEditableBlock extends React.Component {
       const formData = new FormData();
       formData.append("image", imageFile);
       try {
-        const response = await fetch(
-          `${process.env.NEXT_PUBLIC_API}/pages/images?pageId=${pageId}`,
-          {
-            method: "POST",
-            credentials: "include",
-            body: formData,
-          }
-        );
+        const response = await APIService.PageImgUpload(formData, pageId)
         const data = await response.json();
         const imageUrl = data.imageUrl;
         this.setState({ ...this.state, imageUrl: imageUrl });
@@ -578,4 +562,11 @@ class InboxEditableBlock extends React.Component {
   }
 }
 
+export const getServerSideProps = async (context) => {
+  const { token } = cookies(context);
+
+  return {
+    props: { token:token}
+  };
+};
 export default InboxEditableBlock;

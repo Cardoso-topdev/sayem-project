@@ -15,6 +15,8 @@ const Layout = ({ children }) => {
 
   const isLoginPage = router.pathname === "/login";
   const isAuth = state.isAuth;
+  const userId = state.userId;
+  const userName = state.userName;
 
   const toggleContextMenu = () => {
     setIsContextMenuOpen(!isContextMenuOpen);
@@ -39,6 +41,8 @@ const Layout = ({ children }) => {
       <Header 
           isLoginPage={isLoginPage}
           isAuth={isAuth}
+          userId={userId}
+          userName={userName}
           isContextMenuOpen={isContextMenuOpen}
           toggleContextMenu={toggleContextMenu} 
           handleNavigation={handleNavigation} 
