@@ -10,7 +10,6 @@ import authentication from '../../services/authentication';
 import GoogleLogin from 'react-google-login';
 import { useGoogleLogin } from 'react-google-login';
 import TwitterLogin from "react-twitter-login";
-import { withStyles } from "@material-ui/core/styles"
 import { Box, ButtonGroup, Button } from "@material-ui/core"
 import { Google as GoogleIcon } from "mdi-material-ui";
 
@@ -59,13 +58,6 @@ const LoginPage = () => {
   const handleInputChange = (id, value) => {
     setFormData({ ...formData, [id]: value });
   };
-
-  const GoogleButton = withStyles({
-    root: {
-      color: "#ea4335",
-    },
-  })(Button);
-
 
   const clientId =
   '89981139684-5h2uvgps27q8couh86pcffl6vrcve3kb.apps.googleusercontent.com';
@@ -148,7 +140,7 @@ const LoginPage = () => {
   };
 
   return (
-    <>
+    <div className="container text-center">
       <h1 className="pageHeading">Login</h1>
       <form id={form.id} onSubmit={handleSubmit}>
         {form.inputs.map((input, key) => {
@@ -177,26 +169,29 @@ const LoginPage = () => {
       </form>
 
       <div>
-        <ButtonGroup
-          halfwidth="true"
-          orientation="vertical"
-          variant="outlined"
-        >
-          <Button
-            key={"google.com"}
-            startIcon={<GoogleIcon/>}
-            onClick={() => signIn()}
+        <div className="social m-3">
+          <ButtonGroup
+            halfwidth="true"
+            orientation="vertical"
+            variant="outlined"
           >
-            {"Sign in with Google"}
-          </Button>
-        </ButtonGroup>
+            <Button
+              key={"google.com"}
+              startIcon={<GoogleIcon/>}
+              onClick={() => signIn()}
+            >
+              {"Sign in with Google"}
+            </Button>
+          </ButtonGroup>
+        </div>
 
-        <TwitterLogin
-          authCallback={twitterHandler}
-          consumerKey={"CONSUMER_KEY"}
-          consumerSecret={"CONSUMER_SECRET"}
-        />
-
+        <div className="social m-3">
+          <TwitterLogin
+            authCallback={twitterHandler}
+            consumerKey={"CONSUMER_KEY"}
+            consumerSecret={"CONSUMER_SECRET"}
+          />
+        </div>
       </div>
       <p>
         Don't have an account yet?{" "}
@@ -204,7 +199,7 @@ const LoginPage = () => {
           <strong>Sign up here.</strong>
         </a>
       </p>
-    </>
+    </div>
   );
 };
 
