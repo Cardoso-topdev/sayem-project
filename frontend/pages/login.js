@@ -6,7 +6,7 @@ import { UserDispatchContext } from "../context/UserContext";
 import Notice from "../components/notice";
 import Input from "../components/input";
 import AuthProviderList from "../components/AuthProviderList";
-import authentication from '../../services/authentication';
+// import authentication from '../../services/authentication';
 import GoogleLogin from 'react-google-login';
 import { useGoogleLogin } from 'react-google-login';
 import TwitterLogin from "react-twitter-login";
