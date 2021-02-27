@@ -7,10 +7,10 @@
     "node": "12.x"
   },
   "scripts": {
+    "start": "node backend/app.js",
     "dev": "next dev",
     "build": "cd frontend && next build",
-    "start": "cd frontend && next start -p $PORT",
-    "heroku-postbuild": "cd frontend && npm run build"
+    "heroku-postbuild": "cd frontend && npm install && npm run build"
   },
   "dependencies": {
     "@material-ui/core": "^4.11.3",

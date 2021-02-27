@@ -42,6 +42,7 @@ const fileStorage = multer.diskStorage({
   },
 });
 
+
 // Only allow image files to be uploaded
 const fileFilter = (req, file, cb) => {
   if (
@@ -56,6 +57,16 @@ const fileFilter = (req, file, cb) => {
 };
 
 const app = express();
+
+// const __dirname = path.resolve()
+
+// if (process.env.NODE_ENV === 'production') {
+//   app.use(express.static(path.join(__dirname, './frontend/build')))
+
+//   app.get('*', (req, res) =>
+//     res.sendFile(path.resolve(__dirname, 'frontend', 'build', 'index.html'))
+//   )
+// } 
 // app.use(cors());
 app.use(bodyParser.json());
 app.use(function (req, res, next) {
